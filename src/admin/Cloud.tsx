@@ -35,6 +35,8 @@ function Login({ onLogin, onOwner }: { onLogin(a: { code: string; token: string 
   const [code, setCode] = useState('')
   const [pass, setPass] = useState('')
   const [ownerPass, setOwnerPass] = useState('')
+  const [newPass, setNewPass] = useState('')
+  const [created, setCreated] = useState<{ code: string; token: string } | null>(null)
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
   const go = async (fn: () => Promise<void>) => { setBusy(true); setMsg(''); try { await fn() } catch (e) { setMsg((e as Error).message) } finally { setBusy(false) } }
@@ -42,7 +44,7 @@ function Login({ onLogin, onOwner }: { onLogin(a: { code: string; token: string 
     <div className="grid gap-4 sm:grid-cols-2">
       <Card className="grid gap-3 content-start">
         <h2 className="font-extrabold text-xl">👪 Ota-ona sifatida kirish</h2>
-        <p className="text-sm text-gray-500">Oila kodi ilovadagi Admin panel → ☁️ Onlayn bo‘limida ko‘rinadi.</p>
+        <p className="text-sm text-gray-500">Oila kodi (masalan <b>RJ-7K3M9Q</b>) hisob yaratilganda beriladi. Bu yerda ilovadagi 4 xonali PIN emas, hisob <b>paroli</b> kiritiladi.</p>
         <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="RJ-XXXXXX" className={field} />
         <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && code && pass && go(async () => onLogin(await rpc('family_login', { p_code: code, p_password: pass })))} placeholder="Parol" className={field} />
         <Btn disabled={busy || !code || !pass} onClick={() => go(async () => onLogin(await rpc('family_login', { p_code: code, p_password: pass })))}>Kirish</Btn>
@@ -52,6 +54,22 @@ function Login({ onLogin, onOwner }: { onLogin(a: { code: string; token: string 
         <p className="text-sm text-gray-500">Barcha oilalar va bolalar statistikasi. Birinchi kirishda kiritilgan parol bosh admin paroli bo‘lib qoladi (kamida 8 belgi).</p>
         <input type="password" value={ownerPass} onChange={(e) => setOwnerPass(e.target.value)} placeholder="Bosh admin paroli" className={field} />
         <Btn color="bg-sun text-white" disabled={busy || !ownerPass} onClick={() => go(async () => { await rpc('owner_overview', { p_password: ownerPass }); onOwner(ownerPass) })}>Kirish</Btn>
+      </Card>
+      <Card className="grid gap-3 content-start sm:col-span-2 !bg-mint-light">
+        <h2 className="font-extrabold text-xl">✨ Hisobingiz yo‘qmi? Yangi oila hisobini yarating</h2>
+        {created ? (
+          <div className="grid gap-3 text-center">
+            <p className="font-bold">Oila kodingiz (yozib qo‘ying):</p>
+            <div className="text-4xl font-black tracking-widest text-grape-dark select-all">{created.code}</div>
+            <p className="text-sm text-gray-600">Bolaning telefonida: Ota-onalar → 🛡️ Admin panel → ☁️ Onlayn → “Mavjud hisobga ulash” — shu kod va parolni kiriting. Shunda bola natijalari shu yerda ko‘rinadi.</p>
+            <Btn onClick={() => onLogin(created)}>Panelga kirish ➜</Btn>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-[1fr_auto] gap-2">
+            <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="Yangi parol o‘ylab toping (kamida 6 belgi)" className={field} />
+            <Btn color="bg-mint text-white" disabled={busy || newPass.length < 6} onClick={() => go(async () => setCreated(await rpc('family_create', { p_password: newPass })))}>Hisob yaratish</Btn>
+          </div>
+        )}
       </Card>
       {msg && <p className="sm:col-span-2 text-center font-bold text-coral">{msg}</p>}
     </div>

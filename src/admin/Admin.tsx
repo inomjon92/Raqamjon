@@ -25,9 +25,9 @@ const TABS: [Tab, string][] = [
   ['rewards', '🎁 Sovg‘alar'], ['cloud', '☁️ Onlayn'], ['pin', '🔑 PIN'],
 ]
 
-export default function Admin() {
+export default function Admin({ tab: initial }: { tab?: string }) {
   const [ok, setOk] = useState(() => sessionStorage.getItem('admin-ok') === '1')
-  const [tab, setTab] = useState<Tab>('overview')
+  const [tab, setTab] = useState<Tab>(() => (TABS.some(([t]) => t === initial) ? initial as Tab : 'overview'))
   if (!ok) return <PinGate onOk={() => { try { sessionStorage.setItem('admin-ok', '1') } catch { /* yo'q */ } setOk(true) }} />
   return (
     <div>

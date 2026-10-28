@@ -73,7 +73,7 @@ export default function App() {
 
   let page
   if (route.name === 'cloud') page = <Cloud />
-  else if (route.name === 'admin' && !profile) page = <Admin />
+  else if (route.name === 'admin' && !profile) page = <Admin tab={route.tab} />
   else if (!profile) page = <Profiles first onPicked={markPicked} />
   else if (!picked && profilesCount > 1 && route.name !== 'parent' && route.name !== 'admin') page = <Profiles onPicked={markPicked} />
   else switch (route.name) {
@@ -88,7 +88,7 @@ export default function App() {
     case 'diploma': page = <Diploma id={route.id} />; break
     case 'archive': page = <Archive />; break
     case 'letters': page = <Letters />; break
-    case 'admin': page = <Admin />; break
+    case 'admin': page = <Admin tab={route.tab} />; break
     case 'print': page = <ParentGate back="#/parent"><PrintSheet /></ParentGate>; break
     default: page = <Home />
   }

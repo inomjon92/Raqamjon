@@ -14,7 +14,7 @@ export type Route =
   | { name: 'print' }
   | { name: 'archive' }
   | { name: 'letters' }
-  | { name: 'admin' }
+  | { name: 'admin'; tab?: string }
   | { name: 'cloud' }
 
 export function parse(hash: string): Route {
@@ -32,7 +32,7 @@ export function parse(hash: string): Route {
     case 'print': return { name: 'print' }
     case 'archive': return { name: 'archive' }
     case 'letters': return { name: 'letters' }
-    case 'admin': return { name: 'admin' }
+    case 'admin': return { name: 'admin', tab: p[1] }
     case 'cloud': return { name: 'cloud' }
     default: return { name: 'home' }
   }
