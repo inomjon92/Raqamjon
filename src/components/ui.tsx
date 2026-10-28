@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { sfx } from '../audio/sfx'
-import { useProfile, SHOP_ITEMS } from '../lib/store'
+import { useProfile, SHOP_ITEMS, AVATARS, AVATAR_BG, type Profile } from '../lib/store'
 import { say, type ClipKey } from '../audio/voice'
 
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { color?: string; size?: 'sm' | 'md' | 'lg' }
@@ -56,6 +56,7 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 }
 
 export function TopBar({ title, back = '#/', right }: { title?: ReactNode; back?: string; right?: ReactNode }) {
+  const p = useProfile()
   return (
     <div className="flex items-center gap-3 mb-4">
       <a href={back} onClick={() => sfx.tap()} aria-label="Orqaga" className="w-12 h-12 shrink-0 grid place-items-center rounded-2xl bg-white shadow-popsm text-2xl active:translate-y-1 active:shadow-none">
@@ -63,8 +64,15 @@ export function TopBar({ title, back = '#/', right }: { title?: ReactNode; back?
       </a>
       <div className="flex-1 min-w-0 text-2xl font-extrabold text-grape-dark truncate">{title}</div>
       {right}
+      {p && <a href="#/profiles" aria-label={p.name} className="shrink-0 rounded-full shadow-popsm"><Avatar p={p} size="w-11 h-11 text-3xl" /></a>}
     </div>
   )
+}
+
+/** Bolaning avatari — rangli doira ichida, hamma sahifada bir xil. */
+export function Avatar({ p, size = 'w-12 h-12 text-4xl' }: { p: Pick<Profile, 'avatar'>; size?: string }) {
+  const bg = AVATAR_BG[Math.max(0, AVATARS.indexOf(p.avatar))] ?? 'bg-gray-100'
+  return <span className={`${size} ${bg} rounded-full grid place-items-center leading-none border-2 border-white`}>{p.avatar}</span>
 }
 
 export function CoinBadge() {

@@ -1,13 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export const CAPS = [10, 20, 30, 50, 100] as const
+import { gradeInfo, type Grade, type Op } from './levels'
+
+export const CAPS = [10, 20, 30, 50, 100, 1000, 10000] as const
 export type Cap = (typeof CAPS)[number]
-export type OpsSetting = 'both' | '+' | '-'
 
 export interface Settings {
   cap: Cap
-  ops: OpsSetting
+  ops: Op[]
   voice: boolean
   volume: number
   sfx: boolean
@@ -19,6 +20,7 @@ export interface Settings {
 
 export interface DayStat { solved: number; correct: number; seconds: number }
 export interface LessonState { stars: number; by: 'self' | 'parent' }
+export interface ArchiveEntry { grade: number; round: number; date: string; stars: number; stickers: string[]; trophy: string }
 
 export interface Profile {
   id: string
@@ -38,21 +40,40 @@ export interface Profile {
   lessons: Record<string, LessonState>
   flashBest: number
   diplomas: string[]
+  grade: Grade
+  rounds: Record<string, number>
+  archive: ArchiveEntry[]
   settings: Settings
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  cap: 20, ops: 'both', voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
+  cap: 20, ops: ['+', '-'], voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
 }
 
-export const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐨', '🐵', '🦄', '🐧', '🐶', '🐱']
+export const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐨', '🐵', '🦄', '🐧', '🐶', '🐱', '🐻', '🐮', '🐷', '🐹', '🦉', '🐙', '🦖', '🐳', '🦋', '🐞', '👧', '👦']
+export const AVATAR_BG = ['bg-orange-100', 'bg-sky-100', 'bg-amber-100', 'bg-pink-100', 'bg-lime-100', 'bg-yellow-100', 'bg-slate-100', 'bg-orange-100', 'bg-fuchsia-100', 'bg-cyan-100', 'bg-amber-100', 'bg-rose-100', 'bg-orange-100', 'bg-pink-100', 'bg-rose-100', 'bg-yellow-100', 'bg-amber-100', 'bg-violet-100', 'bg-green-100', 'bg-blue-100', 'bg-sky-100', 'bg-red-100', 'bg-pink-100', 'bg-sky-100']
 
-export const STICKERS = [
-  '🍎', '🍌', '🍓', '🍊', '🍇', '🍒', '🍉', '🍍', '🍐', '🍋',
-  '🦋', '🐞', '🐝', '🐌', '🐛', '🐟', '🐢', '🐬', '🦒', '🐘',
-  '🚗', '🚕', '🚌', '🚂', '🚀', '✈️', '🚁', '⛵', '🚲', '🛴',
-  '🌈', '⭐', '🌙', '☀️', '🌻', '🌵', '🍄', '🎈', '🎁', '🏆',
-]
+/** Har bosqichda yangi stikerlar to'plami. */
+export const STICKER_SETS = [
+  { name: 'Bog‘ va sayohat', items: [
+    '🍎', '🍌', '🍓', '🍊', '🍇', '🍒', '🍉', '🍍', '🍐', '🍋',
+    '🦋', '🐞', '🐝', '🐌', '🐛', '🐟', '🐢', '🐬', '🦒', '🐘',
+    '🚗', '🚕', '🚌', '🚂', '🚀', '✈️', '🚁', '⛵', '🚲', '🛴',
+    '🌈', '⭐', '🌙', '☀️', '🌻', '🌵', '🍄', '🎈', '🎁', '🏆'] },
+  { name: 'Hayvonot olami', items: [
+    '🦁', '🐯', '🐻', '🐼', '🐨', '🦊', '🐰', '🐹', '🐭', '🐱',
+    '🐶', '🐺', '🦝', '🦓', '🦌', '🐫', '🦘', '🦥', '🦦', '🦔',
+    '🐧', '🦜', '🦩', '🦚', '🦢', '🦉', '🐦', '🐤', '🦆', '🦅',
+    '🐳', '🐋', '🦈', '🐙', '🦑', '🦀', '🦞', '🐠', '🐡', '🦭'] },
+  { name: 'Ertak va koinot', items: [
+    '🦄', '🐉', '🧚', '🧜', '🧞', '🧙', '🦸', '🤖', '👽', '👑',
+    '🪐', '🌍', '🌠', '☄️', '🛸', '🛰️', '🌌', '🔭', '🌋', '🏰',
+    '🎠', '🎡', '🎢', '🎪', '🎨', '🎭', '🎻', '🥁', '🎺', '🎸',
+    '💎', '🔮', '🪄', '🧸', '🪁', '🎯', '🧩', '🏅', '🥇', '🎖️'] },
+] as const
+export const stickerSet = (round: number) => STICKER_SETS[(Math.max(1, round) - 1) % STICKER_SETS.length]
+export const STICKERS = STICKER_SETS[0].items
+export const TROPHIES = ['🏆', '🥇', '👑', '💎', '🌟', '🚀']
 
 export const SHOP_ITEMS = [
   { id: 'cap', emoji: '🧢', name: 'Kepka', price: 20 },
@@ -77,6 +98,7 @@ export function newProfile(name: string, avatar: string): Profile {
     id: Math.random().toString(36).slice(2, 10),
     name, avatar, createdAt: Date.now(), coins: 0, stickers: [], owned: [], wearing: null, progress: {},
     streak: 0, lastPlayed: '', days: {}, games: {}, mistakes: {}, lessons: {}, flashBest: 0, diplomas: [],
+    grade: 1, rounds: {}, archive: [],
     settings: { ...DEFAULT_SETTINGS },
   }
 }
@@ -101,6 +123,8 @@ interface State {
   tick(seconds: number): void
   buy(id: string, price: number): boolean
   importAll(data: { profiles: Profile[] }): void
+  setGrade(grade: Grade): void
+  newRound(nextGrade: boolean): ArchiveEntry | null
 }
 
 const upd = (s: State, fn: (p: Profile) => void): Partial<State> => ({
@@ -156,20 +180,20 @@ export const useStore = create<State>()(
         const stars = starsFor(correct, total)
         const res: LevelResult = { stars, coins: stars * 5, sticker: null, firstClear: false, diploma: false }
         set((s) => upd(s, (p) => {
-          const arr = (p.progress[game] ??= [0, 0, 0, 0, 0])
+          const arr = (p.progress[progressKey(p, game)] ??= [0, 0, 0, 0, 0])
           const prev = arr[level - 1]
           res.firstClear = prev === 0 && stars > 0
           if (stars > prev) arr[level - 1] = stars
           p.coins += res.coins
           if (stars === 3 && prev < 3) {
-            const left = STICKERS.filter((x) => !p.stickers.includes(x))
+            const left = stickerSet(roundOf(p)).items.filter((x) => !p.stickers.includes(x))
             if (left.length) {
               res.sticker = left[Math.floor(Math.random() * left.length)]
               p.stickers.push(res.sticker)
             }
           }
-          if (level === 5 && stars > 0 && !p.diplomas.includes(game)) {
-            p.diplomas.push(game)
+          if (level === 5 && stars > 0 && !p.diplomas.includes(progressKey(p, game))) {
+            p.diplomas.push(progressKey(p, game))
             res.diploma = true
           }
         }))
@@ -182,7 +206,33 @@ export const useStore = create<State>()(
         set((s) => upd(s, (q) => { q.coins -= price; q.owned.push(id); q.wearing = id }))
         return true
       },
-      importAll: (data) => set({ profiles: data.profiles, activeId: data.profiles[0]?.id ?? null }),
+      importAll: (data) => set({ profiles: data.profiles.map(migrate), activeId: data.profiles[0]?.id ?? null }),
+      setGrade: (grade) => set((s) => upd(s, (p) => {
+        const g = gradeInfo(grade)
+        p.grade = grade
+        p.settings.cap = g.cap as Cap
+        p.settings.ops = [...g.ops]
+      })),
+      newRound: (nextGrade) => {
+        let entry: ArchiveEntry | null = null
+        set((s) => upd(s, (p) => {
+          const round = roundOf(p)
+          const prefix = `g${p.grade}:`
+          const stars = Object.entries(p.progress).filter(([k]) => k.startsWith(prefix)).reduce((a, [, v]) => a + v.reduce((x, y) => x + y, 0), 0)
+          entry = { grade: p.grade, round, date: today(), stars, stickers: [...p.stickers], trophy: TROPHIES[p.archive.length % TROPHIES.length] }
+          p.archive.push(entry)
+          for (const k of Object.keys(p.progress)) if (k.startsWith(prefix)) delete p.progress[k]
+          p.stickers = []
+          p.coins += 50
+          if (nextGrade && p.grade < 4) {
+            p.grade = (p.grade + 1) as Grade
+            const g = gradeInfo(p.grade)
+            p.settings.cap = g.cap as Cap
+            p.settings.ops = [...g.ops]
+          } else p.rounds[p.grade] = round + 1
+        }))
+        return entry
+      },
     }),
     {
       name: 'raqamjon-v1',
@@ -191,12 +241,25 @@ export const useStore = create<State>()(
         return {
           ...current,
           ...p,
-          profiles: (p.profiles ?? []).map((x) => ({ ...newProfile(x.name, x.avatar), ...x, settings: { ...DEFAULT_SETTINGS, ...x.settings } })),
+          profiles: (p.profiles ?? []).map(migrate),
         }
       },
     },
   ),
 )
+
+/** Eski versiyadagi ma'lumotlarni yangi tuzilishga o'tkazish. */
+function migrate(x: Profile): Profile {
+  const p: Profile = { ...newProfile(x.name, x.avatar), ...x, settings: { ...DEFAULT_SETTINGS, ...x.settings } }
+  const ops = p.settings.ops as unknown
+  if (!Array.isArray(ops)) p.settings.ops = ops === '+' ? ['+'] : ops === '-' ? ['-'] : ['+', '-']
+  p.progress = Object.fromEntries(Object.entries(p.progress).map(([k, v]) => [k.startsWith('g') && k.includes(':') ? k : `g1:${k}`, v]))
+  return p
+}
+
+export const roundOf = (p: Profile) => p.rounds[p.grade] ?? 1
+export const progressKey = (p: Profile, game: string) => `g${p.grade}:${game}`
+export const progressOf = (p: Profile, game: string) => p.progress[progressKey(p, game)] ?? [0, 0, 0, 0, 0]
 
 export const useProfile = () => useStore((s) => s.profiles.find((p) => p.id === s.activeId) ?? null)
 

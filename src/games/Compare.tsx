@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { genEquation, mk, isValidForLevel, maxForLevel, eqKey } from '../lib/levels'
+import { genEquation, mk, isValidForLevel, maxForLevel, eqKey, opSymbol, fitPx, type Op } from '../lib/levels'
 import { say } from '../audio/voice'
 import { sfx } from '../audio/sfx'
 import { Speaker } from '../components/ui'
@@ -12,11 +12,11 @@ type Side = { value: number; label: string }
 const SIGNS = ['>', '=', '<'] as const
 const signOf = (l: number, r: number) => (l > r ? 0 : l === r ? 1 : 2)
 
-function side(level: number, cap: number, kind: 'num' | 'expr', ops?: ('+' | '-')[]): Side {
+function side(level: number, cap: number, kind: 'num' | 'expr', ops?: Op[]): Side {
   if (kind === 'num') { const v = rnd(0, maxForLevel(Math.max(2, level), cap)); return { value: v, label: String(v) } }
   for (;;) {
     const e = genEquation(Math.min(level, 5), { cap, ops })
-    if (isValidForLevel(mk(e.a, e.op, e.b), level, cap)) return { value: e.result, label: `${e.a} ${e.op === '+' ? '+' : '−'} ${e.b}` }
+    if (isValidForLevel(mk(e.a, e.op, e.b), level, cap)) return { value: e.result, label: `${e.a} ${opSymbol(e.op)} ${e.b}` }
   }
 }
 
@@ -59,13 +59,13 @@ function Pair({ api }: { api: GameApi }) {
       <Speaker clip={[pictures ? 'which_more' : 'ins_compare']} />
       <div className="flex items-center justify-center gap-2 sm:gap-6 w-full">
         <div className="flex-1 flex justify-center bg-white/70 rounded-3xl p-3 min-h-[120px] items-center">
-          {pictures ? <PictureGroup emoji={emoji} count={l.value} size="text-3xl sm:text-4xl" /> : <span className="text-4xl sm:text-6xl font-extrabold text-grape-dark whitespace-nowrap">{l.label}</span>}
+          {pictures ? <PictureGroup emoji={emoji} count={l.value} size="text-3xl sm:text-4xl" /> : <span className="font-extrabold text-grape-dark whitespace-nowrap" style={{ fontSize: fitPx(l.label, 44, 4) }}>{l.label}</span>}
         </div>
         <div className="w-20 sm:w-28 h-20 sm:h-28 grid place-items-center rounded-full bg-white border-4 border-grape-light text-6xl font-black text-coral">
           {shown === null ? '?' : SIGNS[shown]}
         </div>
         <div className="flex-1 flex justify-center bg-white/70 rounded-3xl p-3 min-h-[120px] items-center">
-          {pictures ? <PictureGroup emoji={emoji} count={r.value} size="text-3xl sm:text-4xl" /> : <span className="text-4xl sm:text-6xl font-extrabold text-grape-dark whitespace-nowrap">{r.label}</span>}
+          {pictures ? <PictureGroup emoji={emoji} count={r.value} size="text-3xl sm:text-4xl" /> : <span className="font-extrabold text-grape-dark whitespace-nowrap" style={{ fontSize: fitPx(r.label, 44, 4) }}>{r.label}</span>}
         </div>
       </div>
       <Croc sign={shown} />
@@ -119,7 +119,7 @@ function Order({ api }: { api: GameApi }) {
       <div className="text-3xl text-grape-dark font-bold">kichik ➜ katta</div>
       <div className="flex gap-4">
         {nums.map((n) => (
-          <button key={n} disabled={taken.includes(n)} onClick={() => tap(n)} className="w-24 h-24 rounded-full bg-sun text-white text-5xl font-extrabold shadow-pop disabled:opacity-20 active:translate-y-1 active:shadow-none">
+          <button key={n} disabled={taken.includes(n)} onClick={() => tap(n)} style={{ fontSize: fitPx(n, 44) }} className="w-24 h-24 rounded-full bg-sun text-white font-extrabold shadow-pop disabled:opacity-20 active:translate-y-1 active:shadow-none">
             {n}
           </button>
         ))}

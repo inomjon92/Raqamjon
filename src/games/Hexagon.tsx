@@ -4,7 +4,7 @@ import { NumberPad } from '../components/NumberPad'
 import { Speaker } from '../components/ui'
 import { rnd, pick } from '../lib/random'
 import { boxColor } from './kit'
-import { maxForLevel } from '../lib/levels'
+import { maxForLevel , fitPx } from '../lib/levels'
 import { useCells } from './kit'
 import type { GameApi } from './types'
 
@@ -44,7 +44,7 @@ export default function Hexagon({ api }: { api: GameApi }) {
         style={{ clipPath: 'polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)' }}
       >
         <span className={`absolute inset-0 ${isActive ? 'bg-sun' : isEmpty ? 'bg-grape' : 'bg-sun'}`} />
-        <span className={`absolute inset-[5px] grid place-items-center text-4xl font-extrabold ${cls}`} style={{ clipPath: 'polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)', border: 'none' }}>
+        <span className={`absolute inset-[5px] grid place-items-center font-extrabold ${cls}`} style={{ fontSize: fitPx(text || '0', 34), clipPath: 'polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)', border: 'none' }}>
           {text}
         </span>
       </button>

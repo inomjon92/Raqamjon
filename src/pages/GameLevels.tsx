@@ -1,5 +1,5 @@
 import { gameById } from '../games'
-import { useProfile } from '../lib/store'
+import { useProfile, progressOf, progressKey } from '../lib/store'
 import { LEVEL_ICONS, LEVEL_NAMES, maxForLevel } from '../lib/levels'
 import { Stars, TopBar, Speaker } from '../components/ui'
 import { sfx } from '../audio/sfx'
@@ -13,7 +13,7 @@ export default function GameLevels({ id }: { id: string }) {
   const p = useProfile()!
   useEffect(() => { say(['choose_level']) }, [])
   if (!def) return null
-  const stars = p.progress[id] ?? [0, 0, 0, 0, 0]
+  const stars = progressOf(p, id)
 
   return (
     <div>
@@ -34,7 +34,7 @@ export default function GameLevels({ id }: { id: string }) {
           )
         })}
       </div>
-      {p.diplomas.includes(id) && <div className="text-center mt-5"><a className="text-xl font-bold text-grape underline" href={`#/diploma/${id}`}>🏅 Diplom</a></div>}
+      {p.diplomas.includes(progressKey(p, id)) && <div className="text-center mt-5"><a className="text-xl font-bold text-grape underline" href={`#/diploma/${id}`}>🏅 Diplom</a></div>}
     </div>
   )
 }

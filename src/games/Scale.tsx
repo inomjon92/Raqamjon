@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { genEquation, eqKey, distractors } from '../lib/levels'
+import { genEquation, eqKey, distractors, opSymbol } from '../lib/levels'
 import { say } from '../audio/voice'
 import { Speaker } from '../components/ui'
 import { rnd, shuffle } from '../lib/random'
@@ -40,7 +40,7 @@ export default function Scale({ api }: { api: GameApi }) {
       <Speaker clip={['ins_scale']} />
       <div className="relative w-full max-w-md flex flex-col items-center">
         <div className="w-full flex justify-between transition-transform duration-700" style={{ transform: `rotate(${tilt}deg)` }}>
-          {pan(<>{stone(eq.a, 'bg-grape')}<span className="text-2xl font-black self-center">{eq.op === '+' ? '+' : '−'}</span>{stone(eq.b, 'bg-grape')}</>)}
+          {pan(<>{stone(eq.a, 'bg-grape')}<span className="text-2xl font-black self-center">{opSymbol(eq.op)}</span>{stone(eq.b, 'bg-grape')}</>)}
           {pan(<>{right > 0 && stone(right, 'bg-sky2')}{right > 0 && <span className="text-2xl font-black self-center">+</span>}{chosen !== null ? stone(chosen, 'bg-mint') : <span className="text-4xl opacity-40 self-center">❓</span>}</>)}
         </div>
         <div className="w-3 h-28 bg-gray-600 rounded-full -mt-1" />

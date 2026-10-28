@@ -14,6 +14,9 @@ import AbacusHome from './pages/AbacusHome'
 import Lesson from './pages/Lesson'
 import Diploma from './pages/Diploma'
 import PrintSheet from './pages/PrintSheet'
+import Archive from './pages/Archive'
+import { setBoost } from './lib/levels'
+import { roundOf } from './lib/store'
 import { Btn, Mascot } from './components/ui'
 import { ParentGate } from './components/ParentGate'
 
@@ -43,10 +46,17 @@ export default function App() {
   const limitHit = !!s && s.dailyLimitMin > 0 && secondsToday >= s.dailyLimitMin * 60 && !extended && playing
   useEffect(() => { if (limitHit) say(['break_time']) }, [limitHit])
 
+  // Bir nechta bola bo'lsa, har safar ilova ochilganda kim o'ynashini so'raymiz
+  const [picked, setPicked] = useState(() => { try { return sessionStorage.getItem('picked') === '1' } catch { return true } })
+  const markPicked = () => { setPicked(true); try { sessionStorage.setItem('picked', '1') } catch { /* ignore */ } }
+  const profilesCount = useStore((st) => st.profiles.length)
+  useEffect(() => { if (profile) setBoost(roundOf(profile)) }, [profile])
+
   let page
-  if (!profile) page = <Profiles first />
+  if (!profile) page = <Profiles first onPicked={markPicked} />
+  else if (!picked && profilesCount > 1 && route.name !== 'parent') page = <Profiles onPicked={markPicked} />
   else switch (route.name) {
-    case 'profiles': page = <Profiles />; break
+    case 'profiles': page = <Profiles onPicked={markPicked} />; break
     case 'game': page = <GameLevels id={route.id} />; break
     case 'play': page = <Play key={`${route.id}-${route.level}`} id={route.id} level={route.level} />; break
     case 'stickers': page = <Stickers />; break
@@ -55,6 +65,7 @@ export default function App() {
     case 'abacus': page = <AbacusHome />; break
     case 'lesson': page = <Lesson key={route.id} id={route.id} />; break
     case 'diploma': page = <Diploma id={route.id} />; break
+    case 'archive': page = <Archive />; break
     case 'print': page = <ParentGate back="#/parent"><PrintSheet /></ParentGate>; break
     default: page = <Home />
   }

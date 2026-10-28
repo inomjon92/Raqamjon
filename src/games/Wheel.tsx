@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { genEquation, eqKey, isValidForLevel, mk, maxForLevel } from '../lib/levels'
+import { genEquation, eqKey, isValidForLevel, mk, maxForLevel, opSymbol } from '../lib/levels'
 import { say, sayEquation } from '../audio/voice'
 import { sfx } from '../audio/sfx'
 import { NumberPad } from '../components/NumberPad'
@@ -35,7 +35,7 @@ export default function Wheel({ api }: { api: GameApi }) {
     setRot(360 * 5 - target * 45)
     setTimeout(() => { setSpun(true); sfx.pop(); sayEquation(eq.a, eq.op, eq.b) }, 2300)
   }
-  const sign = eq.op === '+' ? '+' : '−'
+  const sign = opSymbol(eq.op)
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -49,7 +49,7 @@ export default function Wheel({ api }: { api: GameApi }) {
             return (
               <g key={i}>
                 <path d={`M0 0 L${95 * Math.cos(a0)} ${95 * Math.sin(a0)} A95 95 0 0 1 ${95 * Math.cos(a1)} ${95 * Math.sin(a1)} Z`} fill={COLORS[i]} stroke="#fff" strokeWidth="3" />
-                <text x={66 * Math.cos(am)} y={66 * Math.sin(am)} transform={`rotate(${i * 45} ${66 * Math.cos(am)} ${66 * Math.sin(am)})`} textAnchor="middle" dominantBaseline="central" fontSize="26" fontWeight="800" fill="#fff">{n}</text>
+                <text x={66 * Math.cos(am)} y={66 * Math.sin(am)} transform={`rotate(${i * 45} ${66 * Math.cos(am)} ${66 * Math.sin(am)})`} textAnchor="middle" dominantBaseline="central" fontSize={Math.min(26, 64 / String(n).length)} fontWeight="800" fill="#fff">{n}</text>
               </g>
             )
           })}

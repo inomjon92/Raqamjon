@@ -14,6 +14,8 @@ import Shop from './Shop'
 import Memory from './Memory'
 import Compare from './Compare'
 import Daily from './Daily'
+import Groups from './Groups'
+import type { Op } from '../lib/levels'
 
 export const GAMES: GameDef[] = [
   { id: 'daily', title: 'Kunlik sarguzasht', emoji: '🗺️', color: 'from-amber-300 to-orange-400', ins: 'ins_daily', Component: Daily },
@@ -21,6 +23,7 @@ export const GAMES: GameDef[] = [
   { id: 'steps', title: 'Uch qadam', emoji: '🐥', color: 'from-yellow-300 to-amber-400', ins: 'ins_steps', fromWorksheet: true, Component: Steps },
   { id: 'fly', title: 'Uchib ketdi!', emoji: '🦋', color: 'from-sky-300 to-blue-400', ins: 'ins_fly', fromWorksheet: true, Component: FlyAway },
   { id: 'caterpillar', title: 'Qurtcha', emoji: '🐛', color: 'from-lime-300 to-green-500', ins: 'ins_caterpillar', fromWorksheet: true, Component: Caterpillar },
+  { id: 'groups', title: 'Qatorlar', emoji: '🍱', color: 'from-red-300 to-orange-500', ins: 'ins_groups', needs: '×', Component: Groups },
   { id: 'mystery', title: 'Sirli katak', emoji: '🎁', color: 'from-fuchsia-300 to-purple-500', ins: 'ins_mystery', fromWorksheet: true, Component: Mystery },
   { id: 'compare', title: 'Ochko‘z timsoh', emoji: '🐊', color: 'from-emerald-300 to-teal-500', ins: 'ins_compare', Component: Compare },
   { id: 'garden', title: 'Amallar bog‘i', emoji: '🌻', color: 'from-green-300 to-emerald-500', ins: 'ins_garden', fromWorksheet: true, Component: Garden },
@@ -34,3 +37,9 @@ export const GAMES: GameDef[] = [
 ]
 
 export const gameById = (id: string) => GAMES.find((g) => g.id === id)
+
+/** Bolaning sozlamalariga mos o'yinlar ro'yxati. */
+export const gamesFor = (ops: Op[]) => GAMES.filter((g) => !g.needs || ops.includes(g.needs))
+
+/** Sinfni tugatish uchun barcha darajalari o'tilishi kerak bo'lgan o'yinlar. */
+export const requiredGames = (ops: Op[]) => gamesFor(ops).filter((g) => g.id !== 'daily')

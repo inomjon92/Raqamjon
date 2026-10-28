@@ -7,7 +7,7 @@ export default function Diploma({ id }: { id: string }) {
   const p = useProfile()!
   const game = gameById(id)
   const mod = MODULES.find((m) => `abacus-${m.id}` === id)
-  const what = game ? `«${game.title}» o‘yinining barcha 5 darajasini` : mod ? `Mental arifmetika: «${mod.title}» modulini` : 'Raqamjon o‘yinini'
+  const what = game ? `${p.grade}-sinf: «${game.title}» o‘yinining barcha 5 darajasini` : mod ? `Mental arifmetika: «${mod.title}» modulini` : 'Raqamjon o‘yinini'
   const date = new Date().toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' })
   return (
     <div>

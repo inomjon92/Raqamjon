@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
-import { say, sayNumber } from '../audio/voice'
+import { say, sayNumber, numberKeys } from '../audio/voice'
 import type { AnswerState } from './useAnswer'
 import type { GameApi } from './types'
 import { rnd } from '../lib/random'
@@ -115,7 +115,7 @@ export function useCells(api: GameApi, answers: number[], key: string | null = n
         vals[i] = String(answers[i])
         st[i] = 'reveal'
         setValues(vals); setStates(st)
-        setTimeout(() => say(['answer_is', `n${answers[i]}`]), 700)
+        setTimeout(() => say(['answer_is', ...numberKeys(answers[i])]), 700)
         setTimeout(() => advance(vals), 1800)
       } else {
         st[i] = 'wrong'

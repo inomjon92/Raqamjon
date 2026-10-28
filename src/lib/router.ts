@@ -12,6 +12,7 @@ export type Route =
   | { name: 'lesson'; id: string }
   | { name: 'diploma'; id: string }
   | { name: 'print' }
+  | { name: 'archive' }
 
 export function parse(hash: string): Route {
   const p = hash.replace(/^#\/?/, '').split('/').filter(Boolean)
@@ -26,6 +27,7 @@ export function parse(hash: string): Route {
     case 'lesson': return p[1] ? { name: 'lesson', id: p[1] } : { name: 'abacus' }
     case 'diploma': return { name: 'diploma', id: p[1] ?? '' }
     case 'print': return { name: 'print' }
+    case 'archive': return { name: 'archive' }
     default: return { name: 'home' }
   }
 }

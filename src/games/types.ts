@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import type { ClipKey } from '../audio/voice'
+import type { Op } from '../lib/levels'
 
 export interface GameApi {
   /** Hozirgi (moslashuvchan) qiyinlik, 1–5. */
@@ -7,7 +8,7 @@ export interface GameApi {
   /** Ota-ona sozlamasi: sonlar chegarasi (10 yoki 20). */
   cap: number
   /** Ota-ona tanlagan amallar (+, − yoki ikkalasi). */
-  ops: ('+' | '-')[]
+  ops: Op[]
   /** Bola ko'p xato qilgan misollar. */
   weak: string[]
   /** Ketma-ket xatolardan keyin rasmli yordam ko'rsatish. */
@@ -28,5 +29,7 @@ export interface GameDef {
   ins: ClipKey
   tasks?: number
   fromWorksheet?: boolean
+  /** Faqat shu amal yoqilganda ko'rinadi. */
+  needs?: Op
   Component: FC<{ api: GameApi }>
 }

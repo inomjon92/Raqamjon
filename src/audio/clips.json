@@ -192,5 +192,14 @@
  "ab_8_1": "Flesh-anzan! Sonlar ekranda tez chiqib yo‘qoladi. Hammasini qo‘shib bor.",
  "ab_8_2": "Tezroq! Sonlar tezroq chiqadi.",
  "ab_8_3": "Beshta son, bir soniyadan.",
- "ab_8_4": "Ikki xonali sonlar bilan flesh-anzan. Sen haqiqiy mental ustasan!"
+ "ab_8_4": "Ikki xonali sonlar bilan flesh-anzan. Sen haqiqiy mental ustasan!",
+ "times": "ko‘paytirish",
+ "divide": "bo‘lish",
+ "thousand": "ming",
+ "choose_avatar": "O‘zingga rasm tanla!",
+ "choose_grade": "Nechanchi sinfda o‘qiysan?",
+ "grade_done": "Tabriklayman! Sen bu sinfning barcha bo‘limlarini yechding!",
+ "new_round": "Yangi savollar va yangi sovrinlar seni kutmoqda!",
+ "trophy": "Kubok arxivga qo‘shildi!",
+ "ins_groups": "Nechta qator bor? Har bir qatorda nechta? Hammasi nechta bo‘ladi?"
 }

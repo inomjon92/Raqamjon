@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import { say } from '../audio/voice'
 import { NumberPad } from '../components/NumberPad'
 import { Speaker } from '../components/ui'
-import { maxForLevel } from '../lib/levels'
+import { maxForLevel , fitPx } from '../lib/levels'
 import { rnd, pick } from '../lib/random'
 import { boxColor, useCells } from './kit'
 import type { GameApi } from './types'
@@ -29,9 +29,11 @@ export function makeChain(level: number, cap: number, allowed: ('+' | '-')[] = [
   }
 }
 
+const trainOps = (ops: string[]) => { const o = ops.filter((x): x is '+' | '-' => x === '+' || x === '-'); return o.length ? o : (['+', '-'] as ('+' | '-')[]) }
+
 /** 8-o'yin: sonlar poyezdi — ketma-ket amallar zanjiri. */
 export default function Train({ api }: { api: GameApi }) {
-  const chain = useMemo(() => makeChain(api.level, api.cap, api.ops), [api.level, api.cap, api.ops])
+  const chain = useMemo(() => makeChain(api.level, api.cap, trainOps(api.ops)), [api.level, api.cap, api.ops])
   const c = useCells(api, chain.values)
   const [go, setGo] = useState(false)
   useEffect(() => { say(['ins_train']) }, [])
@@ -52,11 +54,11 @@ export default function Train({ api }: { api: GameApi }) {
               )}
               <div className="flex flex-col items-center">
                 {i === 0 ? (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-coral text-white grid place-items-center text-3xl sm:text-4xl font-extrabold relative">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-coral text-white grid place-items-center font-extrabold relative" style={{ fontSize: fitPx(chain.start, 32) }}>
                     <span className="absolute -top-9 text-4xl">🚂</span>{chain.start}
                   </div>
                 ) : (
-                  <button onClick={() => c.select(i - 1)} className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 grid place-items-center text-3xl sm:text-4xl font-extrabold ${boxColor(c.states[i - 1], c.active === i - 1)} ${c.active === i - 1 && c.values[i - 1] === null ? 'ring-4 ring-sun' : ''}`}>
+                  <button onClick={() => c.select(i - 1)} className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 grid place-items-center font-extrabold ${boxColor(c.states[i - 1], c.active === i - 1)} ${c.active === i - 1 && c.values[i - 1] === null ? 'ring-4 ring-sun' : ''}`} style={{ fontSize: fitPx(chain.values[i - 1], 32) }}>
                     {c.values[i - 1] ?? (c.active === i - 1 ? c.input : '')}
                   </button>
                 )}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { genEquation, eqKey } from '../lib/levels'
+import { genEquation, eqKey, opSymbol } from '../lib/levels'
 import { say } from '../audio/voice'
 import { NumberPad } from '../components/NumberPad'
 import { Speaker } from '../components/ui'
@@ -25,7 +25,7 @@ export default function Mystery({ api }: { api: GameApi }) {
     <div className="flex flex-col items-center gap-4">
       <div className="text-6xl">🎁</div>
       <Prompt>
-        {slot('a', eq.a)} <Op>{eq.op === '+' ? '+' : '−'}</Op> {slot('b', eq.b)} <Op>=</Op> {slot('r', eq.result)}
+        {slot('a', eq.a)} <Op>{opSymbol(eq.op)}</Op> {slot('b', eq.b)} <Op>=</Op> {slot('r', eq.result)}
         <Speaker onClick={speak} />
       </Prompt>
       {api.help && eq.a <= 20 && eq.b <= 20 && (

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { GAMES } from '../games'
-import { AVATARS, CAPS, today, useProfile, useStore, type Settings } from '../lib/store'
+import { AVATARS, CAPS, progressOf, today, useProfile, useStore, type Settings } from '../lib/store'
+import { ALL_OPS, GRADES, type Grade, type Op } from '../lib/levels'
 import { Btn, Card, TopBar } from '../components/ui'
 import { ParentGate } from '../components/ParentGate'
 import { go } from '../lib/router'
@@ -68,7 +69,7 @@ function Stats() {
         <div className="grid gap-2">
           {GAMES.map((g) => {
             const s = p.games[g.id]
-            const stars = (p.progress[g.id] ?? []).reduce((a, b) => a + b, 0)
+            const stars = progressOf(p, g.id).reduce((a, b) => a + b, 0)
             return (
               <div key={g.id} className="flex items-center gap-3 text-sm sm:text-base">
                 <span className="text-2xl w-8">{g.emoji}</span>
@@ -101,17 +102,25 @@ function Stats() {
 function SettingsTab() {
   const p = useProfile()!
   const patch = useStore((s) => s.patch)
+  const setGrade = useStore((s) => s.setGrade)
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => patch((q) => { q.settings[k] = v })
   const s = p.settings
   const row = 'flex items-center justify-between gap-3 py-3 border-b last:border-0'
   return (
     <Card>
+      <div className={`${row} flex-col !items-start`}><span className="font-bold">Sinf</span>
+        <div className="flex flex-wrap gap-2">{GRADES.map((g) => <Btn key={g.grade} size="sm" color={p.grade === g.grade ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => setGrade(g.grade as Grade)}>{g.grade}-sinf ({g.age} yosh)</Btn>)}</div>
+        <span className="text-sm text-gray-500">Sinf tanlansa, sonlar chegarasi va amallar shu sinfga moslanadi. Pastda ularni alohida o‘zgartirish mumkin.</span>
+      </div>
       <div className={`${row} flex-col !items-start`}><span className="font-bold">Sonlar chegarasi</span>
         <div className="flex flex-wrap gap-2">{CAPS.map((c) => <Btn key={c} size="sm" color={s.cap === c ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => set('cap', c)}>{c} gacha</Btn>)}</div>
-        <span className="text-sm text-gray-500">1–2-darajalar har doim 10 gacha, 5-daraja — tanlangan chegaragacha. Rasmli o‘yinlarda sonlar 20 dan oshmaydi.</span>
+        <span className="text-sm text-gray-500">Darajalar bilan sonlar kattalashadi, 5-daraja — tanlangan chegaragacha. Rasmli o‘yinlarda sonlar 20 dan oshmaydi.</span>
       </div>
       <div className={`${row} flex-col !items-start`}><span className="font-bold">Amallar</span>
-        <div className="flex flex-wrap gap-2">{([['both', '➕➖ Qo‘shish va ayirish'], ['+', '➕ Faqat qo‘shish'], ['-', '➖ Faqat ayirish']] as const).map(([o, l]) => <Btn key={o} size="sm" color={s.ops === o ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => set('ops', o)}>{l}</Btn>)}</div>
+        <div className="flex flex-wrap gap-2">{([['+', '➕ Qo‘shish'], ['-', '➖ Ayirish'], ['×', '✖️ Ko‘paytirish'], ['÷', '➗ Bo‘lish']] as [Op, string][]).map(([o, l]) => {
+          const on = s.ops.includes(o)
+          return <Btn key={o} size="sm" color={on ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => { const next = on ? s.ops.filter((x) => x !== o) : [...s.ops, o]; if (next.length) set('ops', ALL_OPS.filter((x) => next.includes(x))) }}>{l}</Btn>
+        })}</div>
       </div>
       <div className={row}><span className="font-bold">Ovozli ko‘rsatmalar</span><Toggle on={s.voice} set={(v) => set('voice', v)} /></div>
       <div className={row}><span className="font-bold">Ovoz balandligi</span><input type="range" min={0} max={1} step={0.1} value={s.volume} onChange={(e) => set('volume', +e.target.value)} /></div>

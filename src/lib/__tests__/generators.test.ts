@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { genEquation, isValidForLevel, distractors } from '../levels'
+import { genEquation, isValidForLevel, distractors, opsFor } from '../levels'
 import { makeChain, techniques } from '../../abacus/soroban'
 import { MODULES } from '../../abacus/course'
 import { makeChain as trainChain } from '../../games/Train'
 import { numberWord } from '../numbers'
+import { numberKeys } from '../../audio/voice'
 
 describe('genEquation', () => {
   for (const level of [1, 2, 3, 4, 5]) {
@@ -29,6 +30,20 @@ describe('genEquation', () => {
     let max = 0
     for (let i = 0; i < 5000; i++) max = Math.max(max, genEquation(5, { cap: 100 }).result)
     expect(max).toBeGreaterThan(80)
+  })
+  it('ko‘paytirish va bo‘lish butun va chegarada', () => {
+    for (const cap of [20, 100, 1000, 10000]) for (const level of [1, 2, 3, 4, 5]) for (let i = 0; i < 3000; i++) {
+      const e = genEquation(level, { cap, ops: ['×', '÷'] })
+      expect(Number.isInteger(e.result)).toBe(true)
+      expect(e.result).toBeLessThanOrEqual(cap)
+      if (e.op === '÷') expect(e.a % e.b).toBe(0)
+      if (e.op === '×') expect(e.result).toBe(e.a * e.b)
+    }
+  })
+  it('1-darajada ayirish va bo‘lish yo‘q', () => {
+    const ops = opsFor(['+', '-', '×', '÷'], 1)
+    expect(ops).toEqual(['+', '×'])
+    expect(opsFor(['-'], 1)).toEqual(['-'])
   })
   it('distractors noyob va manfiy emas', () => {
     for (let c = 0; c <= 20; c++) {
@@ -79,6 +94,14 @@ describe('poyezd', () => {
       if (ops.length === 1) [c.start, ...c.values].reduce((a, b) => { expect(Math.sign(b - a)).toBe(ops[0] === '+' ? 1 : -1); return b })
     }
   })
+})
+
+it('katta sonlar ovozi', () => {
+  expect(numberKeys(45)).toEqual(['n45'])
+  expect(numberKeys(345)).toEqual(['n3', 'n100', 'n45'])
+  expect(numberKeys(1000)).toEqual(['thousand'])
+  expect(numberKeys(2105)).toEqual(['n2', 'thousand', 'n100', 'n5'])
+  expect(numberKeys(9999)).toEqual(['n9', 'thousand', 'n9', 'n100', 'n99'])
 })
 
 it('sonlar so‘z bilan', () => {

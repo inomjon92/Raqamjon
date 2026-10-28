@@ -94,11 +94,26 @@ export async function say(keys: (ClipKey | string)[]): Promise<void> {
   if (my === token) current = null
 }
 
-export const sayNumber = (n: number) => say([`n${n}`])
+/** Son uchun ovoz kalitlari: 345 -> "uch yuz qirq besh", 2000 -> "ikki ming". */
+export function numberKeys(n: number): string[] {
+  if (n <= 100) return [`n${n}`]
+  const out: string[] = []
+  const th = Math.floor(n / 1000)
+  const rest = n % 1000
+  if (th > 0) out.push(...(th > 1 ? numberKeys(th) : []), 'thousand')
+  const h = Math.floor(rest / 100)
+  if (h > 0) out.push(...(h > 1 ? [`n${h}`] : []), 'n100')
+  if (rest % 100 > 0) out.push(`n${rest % 100}`)
+  return out
+}
+
+export const sayNumber = (n: number) => say(numberKeys(n))
+
+const OP_CLIP = { '+': 'plus', '-': 'minus', '×': 'times', '÷': 'divide' } as const
 
 /** "3 qo'shish 2, nechchi bo'ladi?" */
-export function sayEquation(a: number, op: '+' | '-', b: number, ask = true) {
-  return say([`n${a}`, op === '+' ? 'plus' : 'minus', `n${b}`, ...(ask ? ['howmuch'] : [])])
+export function sayEquation(a: number, op: keyof typeof OP_CLIP, b: number, ask = true) {
+  return say([...numberKeys(a), OP_CLIP[op], ...numberKeys(b), ...(ask ? ['howmuch'] : [])])
 }
 
 const PRAISE: ClipKey[] = ['good1', 'good2', 'good3', 'good4', 'good5', 'good6', 'good7']

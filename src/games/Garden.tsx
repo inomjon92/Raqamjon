@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { genEquation, eqKey, distractors } from '../lib/levels'
+import { genEquation, eqKey, distractors, opSymbol , fitPx } from '../lib/levels'
 import { sayEquation } from '../audio/voice'
 import { Speaker } from '../components/ui'
 import { shuffle, pick } from '../lib/random'
@@ -18,10 +18,10 @@ export default function Garden({ api }: { api: GameApi }) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative">
-        <span className="text-8xl sm:text-9xl animate-wiggle inline-block">{host}</span>
-        <div className="absolute -right-24 sm:-right-36 top-2 bg-white rounded-[2rem] border-4 border-mint px-4 py-3 text-4xl sm:text-5xl font-extrabold text-grape-dark whitespace-nowrap shadow-pop">
-          {eq.a} {eq.op === '+' ? '+' : '−'} {eq.b}
+      <div className="flex items-center gap-2">
+        <span className="text-7xl sm:text-9xl animate-wiggle inline-block">{host}</span>
+        <div className="bg-white rounded-[2rem] border-4 border-mint px-4 py-3 font-extrabold text-grape-dark whitespace-nowrap shadow-pop" style={{ fontSize: fitPx(`${eq.a}${eq.b}`, 44, 4) }}>
+          {eq.a} {opSymbol(eq.op)} {eq.b}
         </div>
       </div>
       <Speaker onClick={() => sayEquation(eq.a, eq.op, eq.b)} />
@@ -30,7 +30,7 @@ export default function Garden({ api }: { api: GameApi }) {
           const isOk = (a.state === 'ok' || a.state === 'reveal') && o === eq.result
           return (
             <button key={o} disabled={a.locked} onClick={() => a.submit(o)}
-              className={`w-24 h-24 sm:w-28 sm:h-28 rounded-3xl text-5xl font-extrabold shadow-pop active:translate-y-1 active:shadow-none border-4 ${isOk ? 'bg-mint text-white border-mint animate-bounceIn' : 'bg-white text-grape-dark border-grape-light'}`}>
+              style={{ fontSize: fitPx(o, 46) }} className={`w-24 h-24 sm:w-28 sm:h-28 rounded-3xl font-extrabold shadow-pop active:translate-y-1 active:shadow-none border-4 ${isOk ? 'bg-mint text-white border-mint animate-bounceIn' : 'bg-white text-grape-dark border-grape-light'}`}>
               {o}
             </button>
           )

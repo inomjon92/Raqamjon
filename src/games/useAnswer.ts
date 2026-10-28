@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import { say } from '../audio/voice'
+import { say, numberKeys } from '../audio/voice'
 import type { GameApi } from './types'
 
 export type AnswerState = 'ask' | 'ok' | 'wrong' | 'reveal'
@@ -29,7 +29,7 @@ export function useAnswer(api: GameApi, correct: number, key: string | null = nu
       if (wrongs.current >= 2) {
         locked.current = true
         setState('reveal')
-        setTimeout(() => say(['answer_is', `n${correct}`]), 900)
+        setTimeout(() => say(['answer_is', ...numberKeys(correct)]), 900)
         setTimeout(() => api.done(false, key), 3400)
       } else {
         setState('wrong')

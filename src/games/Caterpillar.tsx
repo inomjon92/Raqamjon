@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { genEquation, eqKey } from '../lib/levels'
+import { genEquation, eqKey, opSymbol , fitPx } from '../lib/levels'
 import { sayEquation } from '../audio/voice'
 import { NumberPad } from '../components/NumberPad'
 import { Speaker } from '../components/ui'
@@ -24,14 +24,14 @@ export default function Caterpillar({ api }: { api: GameApi }) {
         ))}
       </div>
       <div className="flex items-center">
-        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-mint border-4 border-white shadow-pop grid place-items-center text-5xl z-10">
+        <div className="relative shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-mint border-4 border-white shadow-pop grid place-items-center text-5xl z-10">
           <span className="absolute -top-6 left-5 text-3xl">〰️</span>
           😊
         </div>
-        <div className="-ml-4 h-24 sm:h-28 px-6 rounded-full bg-sun-light border-4 border-sun grid place-items-center text-4xl sm:text-5xl font-extrabold text-grape-dark whitespace-nowrap">
-          {eq.a} {eq.op === '+' ? '+' : '−'} {eq.b} =
+        <div className="-ml-4 h-24 sm:h-28 px-4 sm:px-6 rounded-full bg-sun-light border-4 border-sun grid place-items-center font-extrabold text-grape-dark whitespace-nowrap" style={{ fontSize: fitPx(`${eq.a}${eq.b}`, 44, 4) }}>
+          {eq.a} {opSymbol(eq.op)} {eq.b} =
         </div>
-        <div className={`-ml-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 grid place-items-center ${eq.result >= 100 || a.value.length > 2 ? 'text-4xl' : 'text-5xl'} font-extrabold ${boxColor(a.state)}`}>
+        <div className={`-ml-3 shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 grid place-items-center font-extrabold ${boxColor(a.state)}`} style={{ fontSize: fitPx(Math.max(String(eq.result).length, a.value.length) > 2 ? String(eq.result) : '00', 48) }}>
           {a.state === 'ok' || a.state === 'reveal' ? eq.result : a.value}
         </div>
       </div>

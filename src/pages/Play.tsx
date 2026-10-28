@@ -24,7 +24,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
   const [result, setResult] = useState<LevelResult | null>(null)
   const streak = useRef({ ok: 0, bad: 0 })
   const cap = profile?.settings.cap ?? 20
-  const opsSetting = profile?.settings.ops ?? 'both'
+  const opsSetting = profile?.settings.ops ?? ['+', '-']
   const weak = useMemo(() => weakKeys(profile), [profile?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const done = useCallback((success: boolean, key?: string | null) => {
@@ -149,5 +149,6 @@ export const INSTRUCTIONS: Record<string, string> = {
   ins_scale: 'Tarozini tenglashtir. To‘g‘ri toshni tanla.',
   ins_shop: 'Narsalarni sotib ol. Kerakli tangalarni to‘la.',
   ins_memory: 'Kartochkalarni och. Misol va uning javobini juftlab top.',
+  ins_groups: 'Nechta qator bor? Har bir qatorda nechta? Hammasi nechta bo‘ladi?',
   ins_compare: 'Timsoh doim kattaroq tomonga og‘zini ochadi. To‘g‘ri belgini tanla: katta, teng yoki kichik.',
 }

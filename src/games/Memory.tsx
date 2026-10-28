@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { genEquation } from '../lib/levels'
+import { genEquation, opSymbol , fitPx } from '../lib/levels'
 import { say } from '../audio/voice'
 import { sfx } from '../audio/sfx'
 import { Speaker } from '../components/ui'
@@ -18,7 +18,7 @@ export default function Memory({ api }: { api: GameApi }) {
       const e = genEquation(api.level, { ops: api.ops, cap: api.cap })
       if (used.has(e.result)) continue
       used.add(e.result)
-      list.push({ id: i * 2, pair: i, text: `${e.a} ${e.op === '+' ? '+' : '−'} ${e.b}`, kind: 'eq' }, { id: i * 2 + 1, pair: i, text: String(e.result), kind: 'ans' })
+      list.push({ id: i * 2, pair: i, text: `${e.a} ${opSymbol(e.op)} ${e.b}`, kind: 'eq' }, { id: i * 2 + 1, pair: i, text: String(e.result), kind: 'ans' })
       i++
     }
     return shuffle(list)
@@ -56,7 +56,7 @@ export default function Memory({ api }: { api: GameApi }) {
           const shown = open.includes(c.id) || matched.includes(c.pair)
           return (
             <button key={c.id} onClick={() => flip(c)}
-              className={`aspect-[4/3] rounded-3xl text-3xl sm:text-4xl font-extrabold shadow-pop transition-all duration-300 ${matched.includes(c.pair) ? 'bg-mint-light text-mint scale-95' : shown ? (c.kind === 'eq' ? 'bg-white text-grape-dark' : 'bg-sun-light text-coral') : 'bg-grape text-white'}`}>
+              style={{ fontSize: shown ? fitPx(c.text, 32, 5) : 32 }} className={`aspect-[4/3] rounded-3xl font-extrabold shadow-pop transition-all duration-300 ${matched.includes(c.pair) ? 'bg-mint-light text-mint scale-95' : shown ? (c.kind === 'eq' ? 'bg-white text-grape-dark' : 'bg-sun-light text-coral') : 'bg-grape text-white'}`}>
               {shown ? c.text : '❔'}
             </button>
           )

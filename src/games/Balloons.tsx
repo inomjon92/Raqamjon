@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { genEquation, eqKey, distractors } from '../lib/levels'
+import { genEquation, eqKey, distractors, opSymbol , fitPx } from '../lib/levels'
 import { sayEquation } from '../audio/voice'
 import { sfx } from '../audio/sfx'
 import { Speaker } from '../components/ui'
@@ -27,7 +27,7 @@ export default function Balloons({ api }: { api: GameApi }) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-3 text-5xl sm:text-6xl font-extrabold text-grape-dark">
-        {eq.a} <span className="text-coral">{eq.op === '+' ? '+' : '−'}</span> {eq.b} <span className="text-coral">=</span> <span className="text-mint">{a.state === 'ok' || a.state === 'reveal' ? eq.result : '?'}</span>
+        {eq.a} <span className="text-coral">{opSymbol(eq.op)}</span> {eq.b} <span className="text-coral">=</span> <span className="text-mint">{a.state === 'ok' || a.state === 'reveal' ? eq.result : '?'}</span>
         <Speaker onClick={() => sayEquation(eq.a, eq.op, eq.b)} />
       </div>
       <div className="relative w-full h-[52vh] min-h-[320px] overflow-hidden rounded-3xl bg-gradient-to-b from-sky2-light to-white">
@@ -42,7 +42,7 @@ export default function Balloons({ api }: { api: GameApi }) {
                 <span className={`text-6xl ${o === eq.result ? '' : 'opacity-60'}`}>{o === eq.result ? '🎉' : '💨'}</span>
               ) : (
                 <>
-                  <span className="w-20 h-24 sm:w-24 sm:h-28 rounded-[50%] grid place-items-center text-4xl font-extrabold text-white shadow-lg" style={{ background: COLORS[i % COLORS.length] }}>{o}</span>
+                  <span className="w-20 h-24 sm:w-24 sm:h-28 rounded-[50%] grid place-items-center text-4xl font-extrabold text-white shadow-lg" style={{ background: COLORS[i % COLORS.length], fontSize: fitPx(o, 36) }}>{o}</span>
                   <span className="w-0.5 h-10 bg-gray-400" />
                 </>
               )}

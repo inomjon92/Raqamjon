@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { genEquation, type Equation, mk } from '../lib/levels'
+import { genEquation, type Equation, opSymbol, parseKey } from '../lib/levels'
 import { useProfile, weakKeys } from '../lib/store'
 import { Btn, TopBar } from '../components/ui'
 import { pick } from '../lib/random'
@@ -10,7 +10,7 @@ export default function PrintSheet() {
   const [level, setLevel] = useState(3)
   const [seed, setSeed] = useState(0)
   const rows = useMemo(() => {
-    const weak: Equation[] = weakKeys(p).map((k) => k.match(/^(\d+)([+-])(\d+)$/)).filter(Boolean).map((m) => mk(+m![1], m![2] as '+' | '-', +m![3]))
+    const weak: Equation[] = weakKeys(p).map(parseKey).filter((e): e is Equation => !!e)
     const list: { e: Equation; hole: 'a' | 'b' | 'r' }[] = []
     for (const e of weak) list.push({ e, hole: 'r' })
     while (list.length < 30) list.push({ e: genEquation(level, { cap: p.settings.cap }), hole: level >= 3 ? pick(['a', 'b', 'r'] as const) : 'r' })
@@ -35,7 +35,7 @@ export default function PrintSheet() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-5 text-3xl font-bold">
           {rows.map(({ e, hole }, i) => (
             <div key={i} className="flex items-center gap-2 whitespace-nowrap">
-              {cell(e.a, hole === 'a')} <span>{e.op === '+' ? '+' : '−'}</span> {cell(e.b, hole === 'b')} <span>=</span> {cell(e.result, hole === 'r')}
+              {cell(e.a, hole === 'a')} <span>{opSymbol(e.op)}</span> {cell(e.b, hole === 'b')} <span>=</span> {cell(e.result, hole === 'r')}
             </div>
           ))}
         </div>
