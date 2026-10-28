@@ -96,7 +96,27 @@ export default function App() {
   return (
     <main className="mx-auto w-full max-w-5xl px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-10 print:p-0">
       {limitHit ? <BreakScreen onContinue={() => setExtended(true)} /> : page}
+      {!limitHit && (!profile || route.name === 'home') && <SiteFooter />}
     </main>
+  )
+}
+
+const APK_URL = 'https://github.com/inomjon92/Raqamjon/releases/download/apk/raqamjon.apk'
+const isApp = () => !!(window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()
+
+/** Bosh sahifa pastida: APK yuklab olish (faqat brauzerda) va aloqa telefoni. */
+function SiteFooter() {
+  return (
+    <footer className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 text-center print:hidden">
+      {!isApp() && (
+        <a href={APK_URL} className="inline-flex items-center gap-2 bg-mint text-white font-extrabold text-lg rounded-2xl px-5 py-3 shadow-popsm active:translate-y-1 active:shadow-none">
+          📲 Android ilovani (APK) yuklab olish
+        </a>
+      )}
+      <a href="tel:+998975212151" className="inline-flex items-center gap-2 bg-white text-grape-dark font-extrabold text-lg rounded-2xl px-5 py-3 shadow-popsm">
+        📞 Aloqa: +998 97 521 21 51
+      </a>
+    </footer>
   )
 }
 
