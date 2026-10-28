@@ -12,7 +12,7 @@ export const opSymbol = (op: Op) => (op === '-' ? '−' : op)
 
 /** Sinflar: yosh, sonlar chegarasi va amallar (standart qiymatlar). */
 export const GRADES = [
-  { grade: 1, age: 7, cap: 20, ops: ['+', '-'] as Op[], emoji: '🌱', about: '20 gacha qo‘shish va ayirish' },
+  { grade: 1, age: 7, cap: 30, ops: ['+', '-'] as Op[], emoji: '🌱', about: '30 gacha qo‘shish va ayirish' },
   { grade: 2, age: 8, cap: 100, ops: ['+', '-', '×', '÷'] as Op[], emoji: '🌿', about: '100 gacha, ko‘paytirish jadvali' },
   { grade: 3, age: 9, cap: 1000, ops: ['+', '-', '×', '÷'] as Op[], emoji: '🌳', about: '1000 gacha, ko‘paytirish va bo‘lish' },
   { grade: 4, age: 10, cap: 10000, ops: ['+', '-', '×', '÷'] as Op[], emoji: '🏆', about: 'Ko‘p xonali sonlar' },

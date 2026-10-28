@@ -47,3 +47,22 @@ describe('admin misollari', () => {
     expect(solve('salom')).toBeNull()
   })
 })
+
+import { forGrade, MODULES } from '../../abacus/course'
+import { makeChain } from '../../abacus/soroban'
+import { GRADES } from '../levels'
+describe('1-sinf chegaralari', () => {
+  it('arifmetika 30 gacha', () => expect(GRADES[0].cap).toBe(30))
+  it('mental arifmetika 20 gacha', () => {
+    for (const m of MODULES) for (const l of m.lessons) {
+      const ex = forGrade(l.ex, 1)
+      if (ex.kind === 'read' || ex.kind === 'show' || ex.kind === 'mixed') expect(ex.hi).toBeLessThanOrEqual(20)
+      if (ex.kind === 'chain' || ex.kind === 'mental') for (let i = 0; i < 20; i++) {
+        const c = makeChain(ex.spec)
+        let v = c.start
+        expect(v).toBeLessThanOrEqual(20)
+        for (const d of c.steps) { v += d; expect(v).toBeLessThanOrEqual(20); expect(v).toBeGreaterThanOrEqual(0) }
+      }
+    }
+  })
+})

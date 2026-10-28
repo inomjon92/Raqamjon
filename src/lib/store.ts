@@ -70,10 +70,12 @@ export interface Profile {
   archive: ArchiveEntry[]
   redeemed: Redemption[]
   settings: Settings
+  /** Ma'lumotlar versiyasi (migratsiya uchun). */
+  v?: number
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  cap: 20, ops: ['+', '-'], voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
+  cap: 30, ops: ['+', '-'], voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
 }
 
 export const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐨', '🐵', '🦄', '🐧', '🐶', '🐱', '🐻', '🐮', '🐷', '🐹', '🦉', '🐙', '🦖', '🐳', '🦋', '🐞', '👧', '👦']
@@ -124,7 +126,7 @@ export function newProfile(name: string, avatar: string): Profile {
     id: Math.random().toString(36).slice(2, 10),
     name, avatar, createdAt: Date.now(), coins: 0, stickers: [], owned: [], wearing: null, progress: {},
     streak: 0, lastPlayed: '', days: {}, games: {}, mistakes: {}, lessons: {}, flashBest: 0, diplomas: [],
-    grade: 1, rounds: {}, archive: [], redeemed: [],
+    grade: 1, rounds: {}, archive: [], redeemed: [], v: 2,
     settings: { ...DEFAULT_SETTINGS },
   }
 }
@@ -306,6 +308,8 @@ function migrate(x: Profile): Profile {
   const p: Profile = { ...newProfile(x.name, x.avatar), ...x, settings: { ...DEFAULT_SETTINGS, ...x.settings } }
   const ops = p.settings.ops as unknown
   if (!Array.isArray(ops)) p.settings.ops = ops === '+' ? ['+'] : ops === '-' ? ['-'] : ['+', '-']
+  // v2: 1-sinf chegarasi 20 dan 30 ga ko'tarildi
+  if ((p.v ?? 1) < 2) { if (p.grade === 1 && p.settings.cap === 20) p.settings.cap = 30; p.v = 2 }
   p.progress = Object.fromEntries(Object.entries(p.progress).map(([k, v]) => [k.startsWith('g') && k.includes(':') ? k : `g1:${k}`, v]))
   return p
 }

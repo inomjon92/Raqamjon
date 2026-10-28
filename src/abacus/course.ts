@@ -6,7 +6,25 @@ export type Exercise =
   | { kind: 'mixed'; lo: number; hi: number }
   | { kind: 'chain'; spec: ChainSpec }
   | { kind: 'mental'; spec: ChainSpec }
-  | { kind: 'flash'; count: number; speedMs: number; digits: 1 | 2 }
+  | { kind: 'flash'; count: number; speedMs: number; digits: 1 | 2; maxSum?: number }
+
+/** 1-sinf uchun barcha mashqlar 20 gacha. */
+export const MENTAL_CAP: Record<number, number> = { 1: 20 }
+
+export function forGrade(ex: Exercise, grade: number): Exercise {
+  const cap = MENTAL_CAP[grade]
+  if (!cap) return ex
+  switch (ex.kind) {
+    case 'read': case 'show': case 'mixed': {
+      const hi = Math.min(ex.hi, cap)
+      return { ...ex, hi, lo: Math.min(ex.lo, Math.max(0, hi - 10)) }
+    }
+    case 'chain': case 'mental':
+      return { ...ex, spec: { ...ex.spec, digits: undefined, max: Math.min(ex.spec.max ?? cap, cap) } }
+    case 'flash':
+      return { ...ex, digits: 1, maxSum: cap }
+  }
+}
 
 export interface Lesson { id: string; title: string; clip: string; ex: Exercise; rods: number; visual?: 'small' | 'big' }
 export interface Module {

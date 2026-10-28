@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { lessonById, MODULES, type Exercise, type Lesson as LessonT } from '../abacus/course'
+import { forGrade, lessonById, MODULES, type Exercise, type Lesson as LessonT } from '../abacus/course'
 import { makeChain } from '../abacus/soroban'
 import { Abacus } from '../abacus/Abacus'
 import { useProfile, useStore } from '../lib/store'
@@ -124,7 +124,7 @@ export default function Lesson({ id }: { id: string }) {
           <span key={i} className={`h-3 flex-1 max-w-8 rounded-full ${i < marks.length ? (marks[i] ? 'bg-mint' : 'bg-sun') : i === index ? 'bg-grape' : 'bg-gray-200'}`} />
         ))}
       </div>
-      <ExerciseView key={index} ex={lesson.ex} rods={lesson.rods} api={api} free={free} />
+      <ExerciseView key={index} ex={forGrade(lesson.ex, p.grade)} rods={lesson.rods} api={api} free={free} />
     </div>
   )
 }
@@ -255,7 +255,17 @@ function MentalEx({ ex, api }: { ex: Extract<Exercise, { kind: 'mental' }>; api:
 }
 
 function FlashEx({ ex, api, free }: { ex: Extract<Exercise, { kind: 'flash' }>; api: GameApi; free: boolean }) {
-  const nums = useMemo(() => Array.from({ length: ex.count }, () => (ex.digits === 2 ? rnd(10, 30) : rnd(1, 9))), [ex.count, ex.digits])
+  const nums = useMemo(() => {
+    const out: number[] = []
+    let sum = 0
+    for (let i = 0; i < ex.count; i++) {
+      // 1-sinfda yig'indi chegaradan oshmasin
+      const room = ex.maxSum ? Math.max(1, Math.min(9, ex.maxSum - sum - (ex.count - i - 1))) : 9
+      const n = ex.digits === 2 ? rnd(10, 30) : rnd(1, room)
+      out.push(n); sum += n
+    }
+    return out
+  }, [ex.count, ex.digits, ex.maxSum])
   const sum = nums.reduce((x, y) => x + y, 0)
   const [phase, setPhase] = useState<'ready' | 'flash' | 'ask'>('ready')
   const f = useFlash(nums.map(String), ex.speedMs, () => setPhase('ask'))
