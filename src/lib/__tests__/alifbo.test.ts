@@ -23,6 +23,8 @@ describe('alifbo', () => {
   })
   it('darajaga mos soʻz va gaplar', () => {
     expect(wordsFor(1).every((w) => w.l === 1)).toBe(true)
+    expect(wordsFor(4).every((w) => w.l >= 3)).toBe(true)
+    expect(WORDS.length).toBeGreaterThanOrEqual(150)
     for (let i = 0; i < 30; i++) expect(sentenceWords(SENTENCES[pickSentence(1)]).length).toBeLessThanOrEqual(3)
   })
   it('sinfga mos oʻyinlar', () => {

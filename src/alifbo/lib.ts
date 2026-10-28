@@ -43,8 +43,9 @@ export const isVowel = (ch: string) => VOWELS.includes(ch.toLowerCase())
 /** Daraja bo'yicha so'zlar: 1 — qisqa so'zlar, 5 — eng uzunlari ham. */
 export function wordsFor(level: number, opts: { minSyll?: number } = {}) {
   const maxL = [1, 2, 3, 4, 4][level - 1] ?? 4
-  const pool = WORDS.filter((w) => w.l <= maxL && w.s.length >= (opts.minSyll ?? 1))
-  return pool.length ? pool : WORDS
+  const minL = [1, 1, 2, 3, 3][level - 1] ?? 1
+  const pool = WORDS.filter((w) => w.l <= maxL && w.l >= minL && w.s.length >= (opts.minSyll ?? 1))
+  return pool.length ? pool : WORDS.filter((w) => w.s.length >= (opts.minSyll ?? 1))
 }
 
 /** Bitta harf o'rniga boshqa harflar (variantlar uchun). */

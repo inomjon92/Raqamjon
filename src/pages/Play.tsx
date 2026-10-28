@@ -49,10 +49,12 @@ export default function Play({ id, level }: { id: string; level: number }) {
     })
   }, [id, level, total, recordAttempt, finishLevel])
 
+  // 1-sinfda topshiriqlar navbatma-navbat: bittasi oson, keyingisi qiyinroq (+2 daraja).
+  const hard = (profile?.grade ?? 1) === 1 && index % 2 === 1 ? 2 : 0
   const api: GameApi = useMemo(() => ({
-    level: clamp(level + offset, 1, 5),
+    level: clamp(level + offset + hard, 1, 5),
     cap,
-    ops: opsFor(opsSetting, clamp(level + offset, 1, 5)),
+    ops: opsFor(opsSetting, clamp(level + offset + hard, 1, 5)),
     grade: profile?.grade ?? 1,
     weak,
     help,
@@ -61,7 +63,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
       if (ok) { sfx.correct(); burst(true); praise() } else { sfx.wrong(); encourage() }
     },
     done,
-  }), [level, offset, cap, opsSetting, weak, help, index, done, profile?.grade])
+  }), [level, offset, hard, cap, opsSetting, weak, help, index, done, profile?.grade])
 
   if (!def || !profile) { go('#/'); return null }
 
