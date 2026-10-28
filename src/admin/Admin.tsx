@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useStore, type Profile, type AdminConfig } from '../lib/store'
 import { GRADES, type Grade } from '../lib/levels'
-import { Btn, Card, TopBar } from '../components/ui'
+import { Avatar, Btn, Card, TopBar } from '../components/ui'
+import { registerAccount } from '../lib/account'
 import { NumberPad } from '../components/NumberPad'
 import { ParentGate } from '../components/ParentGate'
 import { summarize, syncNow, pushConfig, rpc } from '../lib/cloud'
@@ -129,7 +130,7 @@ function KidCard({ p, hidden }: { p: Profile; hidden: string[] }) {
   return (
     <Card className="!p-4">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-5xl">{p.avatar}</span>
+        <Avatar p={p} size="w-14 h-14 text-4xl" />
         <div className="flex-1 min-w-0">
           <div className="font-extrabold text-xl truncate">{p.name}</div>
           <div className="text-sm font-bold text-gray-500">{s.grade}-sinf · {s.round}-bosqich · oxirgi: {s.lastPlayed || '—'}</div>
@@ -159,7 +160,8 @@ function KidsAdmin() {
     <div className="grid gap-3">
       {profiles.map((p) => (
         <Card key={p.id} className="!p-4 grid gap-3">
-          <div className="flex items-center gap-3"><span className="text-4xl">{p.avatar}</span><span className="font-extrabold text-xl flex-1">{p.name}</span><span className="font-bold">🪙 {p.coins}</span></div>
+          <div className="flex items-center gap-3"><Avatar p={p} size="w-14 h-14 text-4xl" /><span className="font-extrabold text-xl flex-1">{p.name}</span><span className="font-bold">🪙 {p.coins}</span></div>
+          <AccountRow p={p} />
           <div className="flex flex-wrap gap-2 items-center"><span className="font-bold w-20">Sinf:</span>
             {GRADES.map((g) => <Btn key={g.grade} size="sm" color={p.grade === g.grade ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => setGradeFor(p, g.grade as Grade)}>{g.grade}</Btn>)}
           </div>
@@ -260,5 +262,28 @@ function CloudTab() {
         </div>
       </details>
     </Card>
+  )
+}
+
+/** Bolaga login/parol qo'yish: boshqa qurilmalardan kirish uchun. */
+function AccountRow({ p }: { p: Profile }) {
+  const [login, setLogin] = useState('')
+  const [pass, setPass] = useState('')
+  const [msg, setMsg] = useState('')
+  const [busy, setBusy] = useState(false)
+  if (p.account) return <div className="bg-mint-light rounded-2xl px-3 py-2 font-bold">🔑 Login: <span className="select-all">{p.account.login}</span> <span className="text-sm text-gray-600 font-normal">— boshqa qurilmada “Menda login bor” orqali kiradi</span></div>
+  return (
+    <div className="grid gap-2 bg-gray-50 rounded-2xl p-3">
+      <span className="font-bold">🔑 Boshqa qurilmalardan kirish uchun login va parol</span>
+      <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2">
+        <input value={login} onChange={(e) => setLogin(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))} placeholder="Login" autoCapitalize="none" className="rounded-xl border-2 px-3 py-2 font-bold min-w-0" />
+        <input value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Parol" className="rounded-xl border-2 px-3 py-2 font-bold min-w-0" />
+        <Btn size="sm" className="col-span-2 sm:col-span-1" color="bg-mint text-white" disabled={busy || login.length < 3 || pass.length < 4} onClick={async () => {
+          setBusy(true); setMsg('')
+          try { await registerAccount(p, login, pass); setMsg('') } catch (e) { setMsg((e as Error).message) } finally { setBusy(false) }
+        }}>Saqlash</Btn>
+      </div>
+      {msg && <span className="text-coral font-bold text-sm">{msg}</span>}
+    </div>
   )
 }

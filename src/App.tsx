@@ -20,6 +20,7 @@ import Admin from './admin/Admin'
 import Cloud from './admin/Cloud'
 import { setCustomWords } from './alifbo/lib'
 import { syncNow } from './lib/cloud'
+import { pullAccounts, pushAccounts } from './lib/account'
 import { setBoost } from './lib/levels'
 import { roundOf } from './lib/store'
 import { Btn, Mascot } from './components/ui'
@@ -70,6 +71,17 @@ export default function App() {
     document.addEventListener('visibilitychange', onHide)
     return () => { clearInterval(t); document.removeEventListener('visibilitychange', onHide) }
   }, [linked])
+
+  // Login/parolli bolalar: ochilganda yangilarini olish, o'zgarishlarni 20 soniyada bir yuborish
+  const hasAccounts = useStore((st) => st.profiles.some((p) => p.account))
+  useEffect(() => {
+    if (!hasAccounts) return
+    void pullAccounts()
+    const t = setInterval(() => { if (navigator.onLine) void pushAccounts() }, 20000)
+    const onHide = () => { if (document.visibilityState === 'hidden') void pushAccounts(); else void pullAccounts() }
+    document.addEventListener('visibilitychange', onHide)
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', onHide) }
+  }, [hasAccounts])
 
   let page
   if (route.name === 'cloud') page = <Cloud token={route.token} />

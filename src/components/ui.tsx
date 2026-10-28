@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { sfx } from '../audio/sfx'
-import { useProfile, SHOP_ITEMS, AVATARS, AVATAR_BG, type Profile } from '../lib/store'
+import { useProfile, SHOP_ITEMS, AVATARS, AVATAR_BG, AVATAR_BADGE, type Profile } from '../lib/store'
 import { say, type ClipKey } from '../audio/voice'
 
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { color?: string; size?: 'sm' | 'md' | 'lg' }
@@ -70,9 +70,35 @@ export function TopBar({ title, back = '#/', right }: { title?: ReactNode; back?
 }
 
 /** Bolaning avatari — rangli doira ichida, hamma sahifada bir xil. */
-export function Avatar({ p, size = 'w-12 h-12 text-4xl' }: { p: Pick<Profile, 'avatar'>; size?: string }) {
-  const bg = AVATAR_BG[Math.max(0, AVATARS.indexOf(p.avatar))] ?? 'bg-gray-100'
-  return <span className={`${size} ${bg} rounded-full grid place-items-center leading-none border-2 border-white`}>{p.avatar}</span>
+export function Avatar({ p, size = 'w-12 h-12 text-4xl' }: { p: Pick<Profile, 'avatar'> & { photo?: string }; size?: string }) {
+  if (p.photo) return <img src={p.photo} alt="" className={`${size} rounded-full object-cover border-2 border-white shrink-0`} />
+  const i = AVATARS.indexOf(p.avatar)
+  const bg = i >= 0 ? AVATAR_BG[i] : 'bg-gray-100'
+  const badge = AVATAR_BADGE[p.avatar]
+  return (
+    <span className={`${size} ${bg} relative rounded-full grid place-items-center leading-none border-2 border-white shrink-0`}>
+      {p.avatar}
+      {badge && <span className="absolute -top-[8%] -right-[4%] text-[45%] leading-none">{badge}</span>}
+    </span>
+  )
+}
+
+/** Rasmni kvadrat qilib kichraytirish (avatar uchun, ~15 KB). */
+export function resizePhoto(file: File, px = 192): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      const c = document.createElement('canvas')
+      c.width = c.height = px
+      const side = Math.min(img.width, img.height)
+      c.getContext('2d')!.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, px, px)
+      URL.revokeObjectURL(url)
+      resolve(c.toDataURL('image/jpeg', 0.8))
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Rasmni ochib bo‘lmadi')) }
+    img.src = url
+  })
 }
 
 export function CoinBadge() {

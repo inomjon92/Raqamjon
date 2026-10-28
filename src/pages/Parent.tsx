@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { GAMES } from '../games'
 import { AVATARS, CAPS, progressOf, today, useProfile, useStore, type Settings } from '../lib/store'
 import { ALL_OPS, GRADES, type Grade, type Op } from '../lib/levels'
-import { Btn, Card, TopBar } from '../components/ui'
+import { Avatar, Btn, Card, TopBar, resizePhoto } from '../components/ui'
 import { ParentGate } from '../components/ParentGate'
 import { go } from '../lib/router'
 
@@ -164,6 +164,7 @@ function Kids() {
   const [edit, setEdit] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState('')
+  const [photo, setPhoto] = useState<string | null>(null)
   return (
     <div className="grid gap-3">
       {profiles.map((p) => (
@@ -171,15 +172,20 @@ function Kids() {
           {edit === p.id ? (
             <div className="grid gap-3">
               <input value={name} onChange={(e) => setName(e.target.value)} className="text-xl font-bold rounded-xl border-2 px-3 py-2" />
-              <div className="flex flex-wrap gap-1">{AVATARS.map((a) => <button key={a} onClick={() => setAvatar(a)} className={`text-3xl rounded-xl p-1 ${avatar === a ? 'bg-grape-light' : ''}`}>{a}</button>)}</div>
-              <div className="flex gap-2"><Btn size="sm" color="bg-mint text-white" onClick={() => { rename(p.id, name.trim() || p.name, avatar); setEdit(null) }}>Saqlash</Btn><Btn size="sm" color="bg-gray-100" onClick={() => setEdit(null)}>Bekor</Btn></div>
+              <div className="flex flex-wrap gap-2 items-center">{AVATARS.map((a) => <button key={a} onClick={() => { setAvatar(a); setPhoto(null) }} className={`rounded-full p-1 ${avatar === a && !photo ? 'ring-4 ring-grape' : ''}`}><Avatar p={{ avatar: a }} size="w-14 h-14 text-4xl" /></button>)}
+                <label className={`rounded-full p-1 cursor-pointer ${photo ? 'ring-4 ring-grape' : ''}`}>
+                  {photo ? <img src={photo} alt="" className="w-14 h-14 rounded-full object-cover" /> : <span className="w-14 h-14 rounded-full grid place-items-center text-3xl bg-white border-2 border-dashed">📷</span>}
+                  <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) setPhoto(await resizePhoto(f).catch(() => null)) }} />
+                </label>
+              </div>
+              <div className="flex gap-2"><Btn size="sm" color="bg-mint text-white" onClick={() => { rename(p.id, name.trim() || p.name, avatar, photo); setEdit(null) }}>Saqlash</Btn><Btn size="sm" color="bg-gray-100" onClick={() => setEdit(null)}>Bekor</Btn></div>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{p.avatar}</span>
+              <Avatar p={p} size="w-12 h-12 text-3xl" />
               <span className="flex-1 font-extrabold text-xl">{p.name} {p.id === activeId && <span className="text-sm text-mint">(hozirgi)</span>}</span>
               {p.id !== activeId && <Btn size="sm" color="bg-grape text-white" onClick={() => setActive(p.id)}>Tanlash</Btn>}
-              <Btn size="sm" color="bg-gray-100" onClick={() => { setEdit(p.id); setName(p.name); setAvatar(p.avatar) }}>✏️</Btn>
+              <Btn size="sm" color="bg-gray-100" onClick={() => { setEdit(p.id); setName(p.name); setAvatar(p.avatar); setPhoto(p.photo ?? null) }}>✏️</Btn>
               <Btn size="sm" color="bg-coral-light" onClick={() => { if (confirm(`${p.name} profilini o‘chirasizmi? Barcha natijalar yo‘qoladi.`)) remove(p.id) }}>🗑</Btn>
             </div>
           )}

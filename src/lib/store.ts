@@ -70,6 +70,12 @@ export interface Profile {
   archive: ArchiveEntry[]
   redeemed: Redemption[]
   settings: Settings
+  /** Bolaning o'z rasmi (kichraytirilgan JPEG, data URL). */
+  photo?: string
+  /** Login/parol bilan bog'langan onlayn hisob. */
+  account?: { login: string; token: string }
+  /** Oxirgi o'zgarish vaqti (qurilmalar orasida sinxronlash uchun). */
+  savedAt?: number
   /** Ma'lumotlar versiyasi (migratsiya uchun). */
   v?: number
 }
@@ -78,8 +84,12 @@ export const DEFAULT_SETTINGS: Settings = {
   cap: 30, ops: ['+', '-'], voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
 }
 
-export const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐨', '🐵', '🦄', '🐧', '🐶', '🐱', '🐻', '🐮', '🐷', '🐹', '🦉', '🐙', '🦖', '🐳', '🦋', '🐞', '👧', '👦']
-export const AVATAR_BG = ['bg-orange-100', 'bg-sky-100', 'bg-amber-100', 'bg-pink-100', 'bg-lime-100', 'bg-yellow-100', 'bg-slate-100', 'bg-orange-100', 'bg-fuchsia-100', 'bg-cyan-100', 'bg-amber-100', 'bg-rose-100', 'bg-orange-100', 'bg-pink-100', 'bg-rose-100', 'bg-yellow-100', 'bg-amber-100', 'bg-violet-100', 'bg-green-100', 'bg-blue-100', 'bg-sky-100', 'bg-red-100', 'bg-pink-100', 'bg-sky-100']
+/** Qiz, o'g'il, hayvoncha-qiz (bantikli quyoncha), hayvoncha-o'g'il (kepkali ayiqcha). Yoki o'z rasmi. */
+export const AVATARS = ['👧', '👦', '🐰', '🐻']
+export const AVATAR_LABELS = ['Qiz bola', 'O‘g‘il bola', 'Quyoncha qiz', 'Ayiqcha o‘g‘il']
+export const AVATAR_BG = ['bg-pink-100', 'bg-sky-100', 'bg-fuchsia-100', 'bg-amber-100']
+/** Hayvoncha avatarlarning bezagi. */
+export const AVATAR_BADGE: Record<string, string> = { '🐰': '🎀', '🐻': '🧢' }
 
 /** Har bosqichda yangi stikerlar to'plami. */
 export const STICKER_SETS = [
@@ -141,9 +151,9 @@ export function starsFor(correct: number, total: number) {
 interface State {
   profiles: Profile[]
   activeId: string | null
-  add(name: string, avatar: string): void
+  add(name: string, avatar: string, photo?: string): void
   remove(id: string): void
-  rename(id: string, name: string, avatar: string): void
+  rename(id: string, name: string, avatar: string, photo?: string | null): void
   setActive(id: string): void
   patch(fn: (p: Profile) => void): void
   recordAttempt(game: string, key: string | null, ok: boolean): void
@@ -157,6 +167,8 @@ interface State {
   cloud: CloudLink | null
   setAdmin(fn: (a: AdminConfig) => void, touch?: boolean): void
   patchKid(id: string, fn: (p: Profile) => void): void
+  /** Onlayn hisobdan kelgan profilni qo'shish yoki yangilash. */
+  putProfile(p: Profile, activate?: boolean): void
   redeem(r: Reward): boolean
   setCloud(c: CloudLink | null): void
 }
@@ -166,6 +178,7 @@ const upd = (s: State, fn: (p: Profile) => void): Partial<State> => ({
     if (p.id !== s.activeId) return p
     const c = structuredClone(p)
     fn(c)
+    c.savedAt = Date.now()
     return c
   }),
 })
@@ -192,7 +205,12 @@ export const useStore = create<State>()(
         if (touch) a.updatedAt = Date.now()
         return { admin: a }
       }),
-      patchKid: (id, fn) => set((s) => ({ profiles: s.profiles.map((p) => { if (p.id !== id) return p; const c = structuredClone(p); fn(c); return c }) })),
+      patchKid: (id, fn) => set((s) => ({ profiles: s.profiles.map((p) => { if (p.id !== id) return p; const c = structuredClone(p); fn(c); c.savedAt = Date.now(); return c }) })),
+      putProfile: (p, activate = false) => set((s) => {
+        const m = migrate(p)
+        const exists = s.profiles.some((x) => x.id === m.id)
+        return { profiles: exists ? s.profiles.map((x) => (x.id === m.id ? m : x)) : [...s.profiles, m], activeId: activate ? m.id : s.activeId ?? m.id }
+      }),
       redeem: (r) => {
         const p = get().profiles.find((x) => x.id === get().activeId)
         if (!p || p.coins < r.price) return false
@@ -203,15 +221,16 @@ export const useStore = create<State>()(
         return true
       },
       setCloud: (c) => set({ cloud: c }),
-      add: (name, avatar) => set((s) => {
+      add: (name, avatar, photo) => set((s) => {
         const p = newProfile(name, avatar)
+        if (photo) p.photo = photo
         return { profiles: [...s.profiles, p], activeId: p.id }
       }),
       remove: (id) => set((s) => {
         const profiles = s.profiles.filter((p) => p.id !== id)
         return { profiles, activeId: s.activeId === id ? profiles[0]?.id ?? null : s.activeId }
       }),
-      rename: (id, name, avatar) => set((s) => ({ profiles: s.profiles.map((p) => (p.id === id ? { ...p, name, avatar } : p)) })),
+      rename: (id, name, avatar, photo?: string | null) => set((s) => ({ profiles: s.profiles.map((p) => (p.id === id ? { ...p, name, avatar, photo: photo === undefined ? p.photo : photo ?? undefined, savedAt: Date.now() } : p)) })),
       setActive: (id) => set({ activeId: id }),
       patch: (fn) => set((s) => upd(s, fn)),
       recordAttempt: (game, key, ok) => set((s) => upd(s, (p) => {
@@ -304,7 +323,7 @@ export const useStore = create<State>()(
 )
 
 /** Eski versiyadagi ma'lumotlarni yangi tuzilishga o'tkazish. */
-function migrate(x: Profile): Profile {
+export function migrate(x: Profile): Profile {
   const p: Profile = { ...newProfile(x.name, x.avatar), ...x, settings: { ...DEFAULT_SETTINGS, ...x.settings } }
   const ops = p.settings.ops as unknown
   if (!Array.isArray(ops)) p.settings.ops = ops === '+' ? ['+'] : ops === '-' ? ['-'] : ['+', '-']

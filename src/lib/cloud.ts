@@ -71,6 +71,7 @@ export async function syncNow(): Promise<Family | null> {
   const kids = st.profiles.map((p) => ({ id: p.id, name: p.name, avatar: p.avatar, grade: p.grade, summary: summarize(p, st.admin.hidden) }))
   const fam = await rpc<Family>('sync_push', { p_token: st.cloud.token, p_kids: kids })
   applyRemote(fam.config)
+  await import('./account').then((m) => m.joinFamily())
   // Lokal sozlamalar yangiroq bo'lsa — serverga yuboramiz.
   const a = useStore.getState().admin
   if (a.updatedAt > (fam.config.updatedAt ?? 0)) await pushConfig()
