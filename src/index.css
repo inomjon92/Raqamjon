@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { -webkit-tap-highlight-color: transparent; }
+body {
+  @apply bg-cream font-kid text-gray-800 antialiased;
+  background-image: radial-gradient(circle at 10% 10%, #ffe9f3 0, transparent 35%), radial-gradient(circle at 90% 20%, #e6f7ff 0, transparent 35%), radial-gradient(circle at 50% 100%, #f0ffe6 0, transparent 40%);
+  background-attachment: fixed;
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+button, a { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+
+@keyframes balloonUp {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(calc(-52vh - 360px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+
+@media print {
+  body { background: #fff !important; }
+  @page { size: A4; margin: 14mm; }
+}
