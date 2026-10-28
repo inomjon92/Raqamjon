@@ -34,3 +34,16 @@ describe('alifbo', () => {
     expect(requiredGames(['+', '-'], 1).some((g) => g.subject === 'alifbo')).toBe(true)
   })
 })
+
+import { solve } from '../../admin/ContentEditor'
+describe('admin misollari', () => {
+  it('misolni hisoblaydi', () => {
+    expect(solve('7 + 8')).toBe(15)
+    expect(solve('36 : 4')).toBe(9)
+    expect(solve('5 x 6 - 3')).toBe(27)
+    expect(solve('2 + 3 × 4')).toBe(14)
+    expect(solve('7 : 2')).toBeNull()
+    expect(solve('3 - 9')).toBeNull()
+    expect(solve('salom')).toBeNull()
+  })
+})

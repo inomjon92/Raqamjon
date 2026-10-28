@@ -15,6 +15,7 @@ import Memory from './Memory'
 import Compare from './Compare'
 import Daily from './Daily'
 import Groups from './Groups'
+import Custom from './Custom'
 import type { Op } from '../lib/levels'
 import type { Subject } from './types'
 import { FirstLetter, ReadPicture, Syllables, MissingLetter, Vowels, Sentence, ReadText, Opposite } from '../alifbo/games'
@@ -36,6 +37,7 @@ export const GAMES: GameDef[] = [
   { id: 'scale', title: 'Tarozi', emoji: '⚖️', color: 'from-slate-300 to-indigo-400', ins: 'ins_scale', Component: Scale },
   { id: 'shop', title: 'Do‘kon', emoji: '🛒', color: 'from-violet-300 to-purple-500', ins: 'ins_shop', tasks: 6, Component: Shop },
   { id: 'memory', title: 'Juftini top', emoji: '🃏', color: 'from-indigo-300 to-blue-500', ins: 'ins_memory', tasks: 3, Component: Memory },
+  { id: 'custom', title: 'Ota-ona savollari', emoji: '📝', color: 'from-teal-300 to-cyan-500', ins: 'ins_custom', optional: true, Component: Custom },
   // Alifbo
   { id: 'al_first', subject: 'alifbo', grades: [1, 2], title: 'Birinchi harf', emoji: '🔤', color: 'from-rose-300 to-pink-500', ins: 'al_first', Component: FirstLetter },
   { id: 'al_picture', subject: 'alifbo', grades: [1, 2], title: 'O‘qi va top', emoji: '🖼️', color: 'from-sky-300 to-indigo-400', ins: 'al_picture', Component: ReadPicture },
@@ -50,9 +52,9 @@ export const GAMES: GameDef[] = [
 export const gameById = (id: string) => GAMES.find((g) => g.id === id)
 
 /** Bolaning sozlamalari va sinfiga mos o'yinlar ro'yxati. */
-export const gamesFor = (ops: Op[], grade: number, subject: Subject = 'math') => GAMES.filter((g) =>
-  (g.subject ?? 'math') === subject && (!g.needs || ops.includes(g.needs)) && (!g.grades || g.grades.includes(grade)))
+export const gamesFor = (ops: Op[], grade: number, subject: Subject = 'math', hidden: string[] = []) => GAMES.filter((g) =>
+  (g.subject ?? 'math') === subject && (!g.needs || ops.includes(g.needs)) && (!g.grades || g.grades.includes(grade)) && !hidden.includes(g.id))
 
 /** Sinfni tugatish uchun barcha darajalari o'tilishi kerak bo'lgan o'yinlar (ikkala fan). */
-export const requiredGames = (ops: Op[], grade: number, subject?: Subject) =>
-  (subject ? gamesFor(ops, grade, subject) : [...gamesFor(ops, grade, 'math'), ...gamesFor(ops, grade, 'alifbo')]).filter((g) => g.id !== 'daily')
+export const requiredGames = (ops: Op[], grade: number, subject?: Subject, hidden: string[] = []) =>
+  (subject ? gamesFor(ops, grade, subject, hidden) : [...gamesFor(ops, grade, 'math', hidden), ...gamesFor(ops, grade, 'alifbo', hidden)]).filter((g) => g.id !== 'daily' && !g.optional)

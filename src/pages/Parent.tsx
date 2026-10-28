@@ -19,6 +19,11 @@ export default function Parent() {
           <button key={t} onClick={() => setTab(t)} className={`whitespace-nowrap px-4 py-2 rounded-2xl font-bold ${tab === t ? 'bg-grape text-white' : 'bg-white text-grape-dark shadow-popsm'}`}>{label}</button>
         ))}
       </div>
+      <a href="#/admin" className="flex items-center gap-3 bg-gradient-to-r from-grape to-indigo-500 text-white rounded-3xl p-4 mb-4 shadow-pop">
+        <span className="text-4xl">🛡️</span>
+        <span className="flex-1"><span className="block text-xl font-extrabold">Admin panel</span><span className="block text-sm font-bold opacity-90">PIN bilan: barcha bolalar, savollar, sovg‘alar, onlayn panel</span></span>
+        <span className="text-2xl">➜</span>
+      </a>
       {!p ? <p>Avval bola profilini yarating.</p> : tab === 'stats' ? <Stats /> : tab === 'settings' ? <SettingsTab /> : tab === 'kids' ? <Kids /> : <Data />}
     </ParentGate>
   )

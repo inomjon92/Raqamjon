@@ -31,3 +31,16 @@ Repozitoriyni Vercel’ga ulang: Framework — **Vite**, qolgan sozlamalar avtom
 ## Texnologiyalar
 
 React 19, TypeScript, Vite, Tailwind CSS, Zustand (ma’lumotlar brauzerda saqlanadi), vite-plugin-pwa, canvas-confetti, Vitest.
+
+## Alifbo fani
+Bosh sahifadagi **🔤 Alifbo** tabida: harflar jadvali (bosilsa harf va so‘z aytiladi) va 8 ta o‘yin —
+1-sinf: birinchi harf, o‘qi va rasmni top, bo‘g‘inlar, tushgan harf, unlilar;
+2–4-sinf: gap tuzish, matn o‘qib savolga javob, zid so‘zlar. Matnlar `src/alifbo/data.json` da.
+
+## Admin panel
+- **Mahalliy** (`#/admin`, Ota-onalar paneli orqali): 4 xonali PIN bilan. Barcha bolalar natijalari, sinf/tanga boshqaruvi,
+  o‘yinlarni yoqish/o‘chirish, o‘z misollaringiz (“Ota-ona savollari” o‘yini), Alifbo uchun yangi so‘zlar, haqiqiy sovg‘alar.
+- **Onlayn** (`#/cloud`): Supabase. Ilovada Admin panel → ☁️ Onlayn bo‘limida oila hisobi yaratiladi (kod + parol).
+  Keyin istalgan qurilmadan `https://raqamjon.vercel.app/#/cloud` orqali kirib natijalarni ko‘rish, savol/sovg‘alarni
+  o‘zgartirish, tanga sovg‘a qilish mumkin. “Bosh admin” — barcha oilalar statistikasi (birinchi kiritilgan parol saqlanadi).
+  Baza: `supabase/schema.sql`. Ulanish manzili `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY` bilan o‘zgartiriladi.

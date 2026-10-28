@@ -16,6 +16,10 @@ import Diploma from './pages/Diploma'
 import PrintSheet from './pages/PrintSheet'
 import Archive from './pages/Archive'
 import Letters from './pages/Letters'
+import Admin from './admin/Admin'
+import Cloud from './admin/Cloud'
+import { setCustomWords } from './alifbo/lib'
+import { syncNow } from './lib/cloud'
 import { setBoost } from './lib/levels'
 import { roundOf } from './lib/store'
 import { Btn, Mascot } from './components/ui'
@@ -53,9 +57,25 @@ export default function App() {
   const profilesCount = useStore((st) => st.profiles.length)
   useEffect(() => { if (profile) setBoost(roundOf(profile)) }, [profile])
 
+  // Ota-ona qo'shgan so'zlar va onlayn sinxronlash
+  const words = useStore((st) => st.admin.words)
+  useEffect(() => { setCustomWords(words) }, [words])
+  const linked = useStore((st) => !!st.cloud)
+  useEffect(() => {
+    if (!linked) return
+    const run = () => { if (navigator.onLine) void syncNow().catch(() => {}) }
+    run()
+    const t = setInterval(run, 5 * 60 * 1000)
+    const onHide = () => { if (document.visibilityState === 'hidden') run() }
+    document.addEventListener('visibilitychange', onHide)
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', onHide) }
+  }, [linked])
+
   let page
-  if (!profile) page = <Profiles first onPicked={markPicked} />
-  else if (!picked && profilesCount > 1 && route.name !== 'parent') page = <Profiles onPicked={markPicked} />
+  if (route.name === 'cloud') page = <Cloud />
+  else if (route.name === 'admin' && !profile) page = <Admin />
+  else if (!profile) page = <Profiles first onPicked={markPicked} />
+  else if (!picked && profilesCount > 1 && route.name !== 'parent' && route.name !== 'admin') page = <Profiles onPicked={markPicked} />
   else switch (route.name) {
     case 'profiles': page = <Profiles onPicked={markPicked} />; break
     case 'game': page = <GameLevels id={route.id} />; break
@@ -68,6 +88,7 @@ export default function App() {
     case 'diploma': page = <Diploma id={route.id} />; break
     case 'archive': page = <Archive />; break
     case 'letters': page = <Letters />; break
+    case 'admin': page = <Admin />; break
     case 'print': page = <ParentGate back="#/parent"><PrintSheet /></ParentGate>; break
     default: page = <Home />
   }

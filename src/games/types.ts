@@ -39,5 +39,7 @@ export interface GameDef {
   subject?: Subject
   /** Faqat shu sinflarda ko'rinadi (berilmasa — hamma sinfda). */
   grades?: number[]
+  /** Sinfni tugatishga hisoblanmaydi. */
+  optional?: boolean
   Component: FC<{ api: GameApi }>
 }

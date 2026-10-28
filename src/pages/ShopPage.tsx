@@ -8,6 +8,9 @@ export default function ShopPage() {
   const p = useProfile()!
   const buy = useStore((s) => s.buy)
   const patch = useStore((s) => s.patch)
+  const rewards = useStore((s) => s.admin.rewards)
+  const redeem = useStore((s) => s.redeem)
+  const pending = p.redeemed.filter((r) => !r.given)
   return (
     <div>
       <TopBar title="🛍️ Bilimdonning do‘koni" right={<CoinBadge />} />
@@ -36,6 +39,28 @@ export default function ShopPage() {
           )
         })}
       </div>
+      {rewards.length > 0 && (
+        <>
+          <h2 className="text-2xl font-extrabold text-grape-dark mt-8 mb-1">🎁 Haqiqiy sovg‘alar</h2>
+          <p className="text-gray-600 font-bold mb-3">Tangalarni yig‘ va ota-onangdan sovg‘a ol!</p>
+          {pending.length > 0 && (
+            <div className="bg-sun-light rounded-3xl p-3 mb-3 font-bold">Kutilayotgan sovg‘alar: {pending.map((r) => `${r.emoji} ${r.name}`).join(', ')}</div>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {rewards.map((r) => (
+              <div key={r.id} className="bg-white rounded-3xl shadow-pop p-3 flex flex-col items-center gap-2 text-center">
+                <span className="text-6xl">{r.emoji}</span>
+                <span className="font-extrabold text-grape-dark">{r.name}</span>
+                <Btn size="sm" color={p.coins >= r.price ? 'bg-sun text-white' : 'bg-gray-200 text-gray-600'} onClick={() => {
+                  if (p.coins < r.price) { sfx.wrong(); say(['not_enough']); return }
+                  if (!confirm(`${r.name} uchun ${r.price} tanga sarflaysanmi?`)) return
+                  if (redeem(r)) { sfx.win(); burst(false); say(['reward_got']) }
+                }}>🪙 {r.price}</Btn>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -12,7 +12,7 @@ let greeted = false
 
 /** Joriy sinf va bosqichning bajarilganlik ulushi. */
 export function gradeProgress(p: Profile) {
-  const req = requiredGames(p.settings.ops, p.grade)
+  const req = requiredGames(p.settings.ops, p.grade, undefined, useStore.getState().admin.hidden)
   const total = req.length * 5
   const done = req.reduce((a, g) => a + progressOf(p, g.id).filter((s) => s > 0).length, 0)
   return { done, total, complete: total > 0 && done >= total }
@@ -21,6 +21,8 @@ export function gradeProgress(p: Profile) {
 export default function Home() {
   const p = useProfile()!
   const newRound = useStore((s) => s.newRound)
+  const hidden = useStore((s) => s.admin.hidden)
+  const customCount = useStore((s) => s.admin.problems.length)
   const [celebrated, setCelebrated] = useState(false)
   const [subject, setSubjectState] = useState<Subject>(() => { try { return (localStorage.getItem('raqamjon-subject') as Subject) || 'math' } catch { return 'math' } })
   const setSubject = (s: Subject) => { setSubjectState(s); sfx.tap(); if (s === 'alifbo') say(['ins_alifbo']); try { localStorage.setItem('raqamjon-subject', s) } catch { /* yo'q */ } }
@@ -86,7 +88,7 @@ export default function Home() {
             <span className="mt-1 text-sm font-bold bg-white/80 rounded-full px-2">29 harf · tingla</span>
           </a>
         )}
-        {gamesFor(p.settings.ops, p.grade, subject).map((gm) => {
+        {gamesFor(p.settings.ops, p.grade, subject, hidden).filter((gm) => gm.id !== 'custom' || customCount > 0).map((gm) => {
           const stars = progressOf(p, gm.id).reduce((a, b) => a + b, 0)
           return (
             <a key={gm.id} href={gm.id === 'daily' ? '#/play/daily/' + dailyLevel(p) : `#/game/${gm.id}`} onClick={() => sfx.tap()}
@@ -120,7 +122,7 @@ export default function Home() {
 
 /** Kunlik sarguzasht darajasi: bola o'tgan darajalarning o'rtachasi. */
 function dailyLevel(p: Profile) {
-  const reached = requiredGames(p.settings.ops, p.grade, 'math').map((g) => progressOf(p, g.id).filter((s) => s > 0).length).filter((n) => n > 0)
+  const reached = requiredGames(p.settings.ops, p.grade, 'math', useStore.getState().admin.hidden).map((g) => progressOf(p, g.id).filter((s) => s > 0).length).filter((n) => n > 0)
   if (!reached.length) return 1
   return Math.max(1, Math.min(5, Math.round(reached.reduce((a, b) => a + b, 0) / reached.length)))
 }

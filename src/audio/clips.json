@@ -358,5 +358,7 @@
  "al_text": "Matnni o‘qi va savolga javob ber.",
  "al_opposite": "Ma’nosi qarama-qarshi so‘zni top.",
  "al_letters": "Harfni bos va tingla.",
- "ins_alifbo": "Alifbo olamiga xush kelibsan!"
+ "ins_alifbo": "Alifbo olamiga xush kelibsan!",
+ "ins_custom": "Oyijon va dadajoning savollari! Javobni yoz.",
+ "reward_got": "Sovgʻa olding! Uni ota-onangga koʻrsat."
 }

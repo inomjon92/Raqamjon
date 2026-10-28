@@ -20,6 +20,31 @@ export interface Settings {
 
 export interface DayStat { solved: number; correct: number; seconds: number }
 export interface LessonState { stars: number; by: 'self' | 'parent' }
+export interface Redemption { id: string; reward: string; name: string; emoji: string; price: number; date: string; given: boolean }
+export interface Reward { id: string; name: string; emoji: string; price: number }
+export interface CustomWord { w: string; s: string[]; e: string; l: number }
+export interface CustomProblem { id: string; q: string; a: number }
+/** Admin (ota-ona) sozlamalari: butun qurilma uchun, onlayn panel bilan sinxronlanadi. */
+export interface AdminConfig {
+  pinHash: string | null
+  hidden: string[]
+  rewards: Reward[]
+  words: CustomWord[]
+  problems: CustomProblem[]
+  updatedAt: number
+  appliedGifts: string[]
+}
+export interface CloudLink { code: string; token: string; lastSync: number }
+
+export const DEFAULT_ADMIN: AdminConfig = {
+  pinHash: null, hidden: [], words: [], problems: [], updatedAt: 0, appliedGifts: [],
+  rewards: [
+    { id: 'r1', name: 'Muzqaymoq', emoji: '🍦', price: 100 },
+    { id: 'r2', name: 'Multfilm ko‘rish (30 daqiqa)', emoji: '📺', price: 150 },
+    { id: 'r3', name: 'Parkka sayr', emoji: '🎠', price: 300 },
+  ],
+}
+
 export interface ArchiveEntry { grade: number; round: number; date: string; stars: number; stickers: string[]; trophy: string }
 
 export interface Profile {
@@ -43,6 +68,7 @@ export interface Profile {
   grade: Grade
   rounds: Record<string, number>
   archive: ArchiveEntry[]
+  redeemed: Redemption[]
   settings: Settings
 }
 
@@ -98,7 +124,7 @@ export function newProfile(name: string, avatar: string): Profile {
     id: Math.random().toString(36).slice(2, 10),
     name, avatar, createdAt: Date.now(), coins: 0, stickers: [], owned: [], wearing: null, progress: {},
     streak: 0, lastPlayed: '', days: {}, games: {}, mistakes: {}, lessons: {}, flashBest: 0, diplomas: [],
-    grade: 1, rounds: {}, archive: [],
+    grade: 1, rounds: {}, archive: [], redeemed: [],
     settings: { ...DEFAULT_SETTINGS },
   }
 }
@@ -125,6 +151,12 @@ interface State {
   importAll(data: { profiles: Profile[] }): void
   setGrade(grade: Grade): void
   newRound(nextGrade: boolean): ArchiveEntry | null
+  admin: AdminConfig
+  cloud: CloudLink | null
+  setAdmin(fn: (a: AdminConfig) => void, touch?: boolean): void
+  patchKid(id: string, fn: (p: Profile) => void): void
+  redeem(r: Reward): boolean
+  setCloud(c: CloudLink | null): void
 }
 
 const upd = (s: State, fn: (p: Profile) => void): Partial<State> => ({
@@ -150,6 +182,25 @@ export const useStore = create<State>()(
     (set, get) => ({
       profiles: [],
       activeId: null,
+      admin: DEFAULT_ADMIN,
+      cloud: null,
+      setAdmin: (fn, touch = true) => set((s) => {
+        const a = structuredClone(s.admin)
+        fn(a)
+        if (touch) a.updatedAt = Date.now()
+        return { admin: a }
+      }),
+      patchKid: (id, fn) => set((s) => ({ profiles: s.profiles.map((p) => { if (p.id !== id) return p; const c = structuredClone(p); fn(c); return c }) })),
+      redeem: (r) => {
+        const p = get().profiles.find((x) => x.id === get().activeId)
+        if (!p || p.coins < r.price) return false
+        set((s) => upd(s, (q) => {
+          q.coins -= r.price
+          q.redeemed.push({ id: Math.random().toString(36).slice(2, 10), reward: r.id, name: r.name, emoji: r.emoji, price: r.price, date: today(), given: false })
+        }))
+        return true
+      },
+      setCloud: (c) => set({ cloud: c }),
       add: (name, avatar) => set((s) => {
         const p = newProfile(name, avatar)
         return { profiles: [...s.profiles, p], activeId: p.id }
@@ -242,6 +293,8 @@ export const useStore = create<State>()(
           ...current,
           ...p,
           profiles: (p.profiles ?? []).map(migrate),
+          admin: { ...DEFAULT_ADMIN, ...p.admin },
+          cloud: p.cloud ?? null,
         }
       },
     },

@@ -1,10 +1,14 @@
 import data from './data.json'
+import clips from '../audio/clips.json'
 import { pick, shuffle } from '../lib/random'
 
 export interface Word { w: string; s: string[]; e: string; l: number }
 export interface Text { t: string; q: [string, string[]][] }
 
-export const WORDS = data.words as Word[]
+const BASE_WORDS = data.words as Word[]
+/** Asosiy so'zlar + ota-ona qo'shgan so'zlar. */
+export let WORDS = BASE_WORDS
+export function setCustomWords(extra: Word[]) { WORDS = [...BASE_WORDS, ...extra.filter((w) => w.w && w.e && w.s?.length)] }
 export const LETTERS = data.letters as { L: string; w: string }[]
 export const SENTENCES = data.sentences as string[]
 export const TEXTS = data.texts as unknown as Text[]
@@ -13,8 +17,11 @@ export const OPPOSITES = data.opposites as [string, string][]
 /** Unli harflar (o'zbek lotin alifbosi). */
 export const VOWELS = ['a', 'e', 'i', 'o', 'u', 'oʻ']
 
-/** So'z ovozi kaliti: "Oʻrdak" -> "w_ordak". */
-export const wordKey = (w: string) => 'w_' + w.toLowerCase().replace(/[ʻ‘']/g, '')
+/** So'z ovozi kaliti: "Oʻrdak" -> "w_ordak". Ovozi yo'q (ota-ona qo'shgan) so'z o'zi o'qiladi. */
+export const wordKey = (w: string) => {
+  const k = 'w_' + w.toLowerCase().replace(/[ʻ‘']/g, '')
+  return k in clips ? k : w
+}
 
 /** Harf ovozi kaliti: "X harfi. Xo'roz." */
 export const letterKey = (L: string) => 'al_l' + LETTERS.findIndex((x) => x.L.toLowerCase() === L.toLowerCase())
