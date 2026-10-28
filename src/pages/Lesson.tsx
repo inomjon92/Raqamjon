@@ -61,7 +61,7 @@ export default function Lesson({ id }: { id: string }) {
   }, [free, lesson, mode, p.id, patch])
 
   const api: GameApi = useMemo(() => ({
-    level: 1, cap: 99, ops: ['+', '-'], weak: [], help: false, index,
+    grade: 1, level: 1, cap: 99, ops: ['+', '-'], weak: [], help: false, index,
     feedback(ok) { if (ok) { sfx.correct(); burst(true); praise() } else { sfx.wrong(); encourage() } },
     done: (s) => done(s),
   }), [index, done])

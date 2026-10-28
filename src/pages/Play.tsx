@@ -53,6 +53,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
     level: clamp(level + offset, 1, 5),
     cap,
     ops: opsFor(opsSetting, clamp(level + offset, 1, 5)),
+    grade: profile?.grade ?? 1,
     weak,
     help,
     index,
@@ -60,7 +61,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
       if (ok) { sfx.correct(); burst(true); praise() } else { sfx.wrong(); encourage() }
     },
     done,
-  }), [level, offset, cap, opsSetting, weak, help, index, done])
+  }), [level, offset, cap, opsSetting, weak, help, index, done, profile?.grade])
 
   if (!def || !profile) { go('#/'); return null }
 
@@ -150,5 +151,13 @@ export const INSTRUCTIONS: Record<string, string> = {
   ins_shop: 'Narsalarni sotib ol. Kerakli tangalarni to‘la.',
   ins_memory: 'Kartochkalarni och. Misol va uning javobini juftlab top.',
   ins_groups: 'Nechta qator bor? Har bir qatorda nechta? Hammasi nechta bo‘ladi?',
+  al_first: 'Rasmga qara. Bu so‘z qaysi harf bilan boshlanadi?',
+  al_picture: 'So‘zni o‘qi va uning rasmini top.',
+  al_syll: 'Bo‘g‘inlarni to‘g‘ri tartibda bosib, so‘z yasa.',
+  al_missing: 'So‘zdan bitta harf tushib qolgan. Uni top!',
+  al_vowels: 'So‘zdagi hamma unli harflarni bos. Unlilar: a, e, i, o, u, oʻ.',
+  al_sentence: 'So‘zlarni to‘g‘ri tartibda bosib, gap tuz.',
+  al_text: 'Matnni diqqat bilan o‘qi va savolga javob ber.',
+  al_opposite: 'Ma’nosi qarama-qarshi bo‘lgan so‘zni top. Masalan: katta — kichik.',
   ins_compare: 'Timsoh doim kattaroq tomonga og‘zini ochadi. To‘g‘ri belgini tanla: katta, teng yoki kichik.',
 }

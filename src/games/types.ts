@@ -2,6 +2,8 @@ import type { FC } from 'react'
 import type { ClipKey } from '../audio/voice'
 import type { Op } from '../lib/levels'
 
+export type Subject = 'math' | 'alifbo'
+
 export interface GameApi {
   /** Hozirgi (moslashuvchan) qiyinlik, 1–5. */
   level: number
@@ -13,6 +15,8 @@ export interface GameApi {
   weak: string[]
   /** Ketma-ket xatolardan keyin rasmli yordam ko'rsatish. */
   help: boolean
+  /** Bolaning sinfi (1–4). */
+  grade: number
   /** Topshiriq raqami (0 dan). */
   index: number
   /** Har bir urinishga ovozli/vizual javob. */
@@ -31,5 +35,9 @@ export interface GameDef {
   fromWorksheet?: boolean
   /** Faqat shu amal yoqilganda ko'rinadi. */
   needs?: Op
+  /** Fan: matematika (standart) yoki alifbo. */
+  subject?: Subject
+  /** Faqat shu sinflarda ko'rinadi (berilmasa — hamma sinfda). */
+  grades?: number[]
   Component: FC<{ api: GameApi }>
 }

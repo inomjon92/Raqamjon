@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { say } from '../audio/voice'
 
 const EXTRA = ['', '', ', qiyinroq', ', o‘nlikdan o‘tmasdan', ', o‘nlikdan o‘tib']
+const ALIFBO = ['Qisqa so‘zlar', 'Ikki bo‘g‘inli so‘zlar', 'Uzunroq so‘zlar', 'Qiyinroq, ko‘proq variant', 'Eng qiyin']
 
 export default function GameLevels({ id }: { id: string }) {
   const def = gameById(id)
@@ -27,7 +28,7 @@ export default function GameLevels({ id }: { id: string }) {
               <span className="text-5xl">{open ? LEVEL_ICONS[i] : '🔒'}</span>
               <span className="flex-1">
                 <span className="block text-2xl font-extrabold text-white drop-shadow">{i + 1}. {name}</span>
-                <span className="block text-white/90 font-bold drop-shadow">{maxForLevel(i + 1, p.settings.cap)} gacha{EXTRA[i]}</span>
+                <span className="block text-white/90 font-bold drop-shadow">{def.subject === 'alifbo' ? ALIFBO[i] : `${maxForLevel(i + 1, p.settings.cap)} gacha${EXTRA[i]}`}</span>
               </span>
               <Stars n={stars[i]} size="text-2xl sm:text-3xl" />
             </a>

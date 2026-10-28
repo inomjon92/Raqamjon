@@ -15,6 +15,7 @@ import Lesson from './pages/Lesson'
 import Diploma from './pages/Diploma'
 import PrintSheet from './pages/PrintSheet'
 import Archive from './pages/Archive'
+import Letters from './pages/Letters'
 import { setBoost } from './lib/levels'
 import { roundOf } from './lib/store'
 import { Btn, Mascot } from './components/ui'
@@ -66,6 +67,7 @@ export default function App() {
     case 'lesson': page = <Lesson key={route.id} id={route.id} />; break
     case 'diploma': page = <Diploma id={route.id} />; break
     case 'archive': page = <Archive />; break
+    case 'letters': page = <Letters />; break
     case 'print': page = <ParentGate back="#/parent"><PrintSheet /></ParentGate>; break
     default: page = <Home />
   }
