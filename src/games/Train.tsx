@@ -7,17 +7,17 @@ import { rnd, pick } from '../lib/random'
 import { boxColor, useCells } from './kit'
 import type { GameApi } from './types'
 
-export function makeChain(level: number, cap: number) {
+export function makeChain(level: number, cap: number, allowed: ('+' | '-')[] = ['+', '-']) {
   const max = maxForLevel(Math.max(2, level), cap)
   const len = level === 1 ? 2 : level === 2 ? 3 : 4
-  const step = level <= 2 ? 3 : level <= 4 ? 5 : 9
+  const step = Math.max(level <= 2 ? 3 : level <= 4 ? 5 : 9, cap > 20 && level >= 3 ? Math.floor(max / 5) : 0)
   for (;;) {
-    const start = rnd(level >= 4 ? 5 : 1, max - 1)
+    const start = allowed.length === 1 && allowed[0] === '-' ? rnd(Math.min(max, len * step), max) : rnd(level >= 4 ? 5 : 1, max - 1)
     const ops: number[] = []
     let v = start
     let ok = true
     for (let i = 0; i < len; i++) {
-      const d = rnd(1, step) * (level === 1 ? 1 : pick([1, -1]))
+      const d = rnd(1, step) * (allowed.length === 1 ? (allowed[0] === '+' ? 1 : -1) : level === 1 ? 1 : pick([1, -1]))
       if (v + d < 0 || v + d > max) { ok = false; break }
       ops.push(d)
       v += d
@@ -31,7 +31,7 @@ export function makeChain(level: number, cap: number) {
 
 /** 8-o'yin: sonlar poyezdi — ketma-ket amallar zanjiri. */
 export default function Train({ api }: { api: GameApi }) {
-  const chain = useMemo(() => makeChain(api.level, api.cap), [api.level, api.cap])
+  const chain = useMemo(() => makeChain(api.level, api.cap, api.ops), [api.level, api.cap, api.ops])
   const c = useCells(api, chain.values)
   const [go, setGo] = useState(false)
   useEffect(() => { say(['ins_train']) }, [])

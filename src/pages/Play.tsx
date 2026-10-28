@@ -7,7 +7,7 @@ import { sfx } from '../audio/sfx'
 import { burst } from '../lib/celebrate'
 import { clamp } from '../lib/random'
 import { Btn, Mascot, Stars, TopBar, Speaker } from '../components/ui'
-import { LEVEL_NAMES, LEVEL_ICONS } from '../lib/levels'
+import { LEVEL_NAMES, LEVEL_ICONS, opsFor } from '../lib/levels'
 import { go } from '../lib/router'
 
 export default function Play({ id, level }: { id: string; level: number }) {
@@ -24,6 +24,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
   const [result, setResult] = useState<LevelResult | null>(null)
   const streak = useRef({ ok: 0, bad: 0 })
   const cap = profile?.settings.cap ?? 20
+  const opsSetting = profile?.settings.ops ?? 'both'
   const weak = useMemo(() => weakKeys(profile), [profile?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const done = useCallback((success: boolean, key?: string | null) => {
@@ -51,6 +52,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
   const api: GameApi = useMemo(() => ({
     level: clamp(level + offset, 1, 5),
     cap,
+    ops: opsFor(opsSetting, clamp(level + offset, 1, 5)),
     weak,
     help,
     index,
@@ -58,7 +60,7 @@ export default function Play({ id, level }: { id: string; level: number }) {
       if (ok) { sfx.correct(); burst(true); praise() } else { sfx.wrong(); encourage() }
     },
     done,
-  }), [level, offset, cap, weak, help, index, done])
+  }), [level, offset, cap, opsSetting, weak, help, index, done])
 
   if (!def || !profile) { go('#/'); return null }
 

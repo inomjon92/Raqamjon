@@ -1,12 +1,12 @@
 import { gameById } from '../games'
 import { useProfile } from '../lib/store'
-import { LEVEL_ICONS, LEVEL_NAMES } from '../lib/levels'
+import { LEVEL_ICONS, LEVEL_NAMES, maxForLevel } from '../lib/levels'
 import { Stars, TopBar, Speaker } from '../components/ui'
 import { sfx } from '../audio/sfx'
 import { useEffect } from 'react'
 import { say } from '../audio/voice'
 
-const RANGE = ['1–5, qo‘shish', '10 gacha', '10 gacha, sirli son', '20 gacha', '20 gacha, o‘nlikdan o‘tib']
+const EXTRA = ['', '', ', qiyinroq', ', o‘nlikdan o‘tmasdan', ', o‘nlikdan o‘tib']
 
 export default function GameLevels({ id }: { id: string }) {
   const def = gameById(id)
@@ -27,7 +27,7 @@ export default function GameLevels({ id }: { id: string }) {
               <span className="text-5xl">{open ? LEVEL_ICONS[i] : '🔒'}</span>
               <span className="flex-1">
                 <span className="block text-2xl font-extrabold text-white drop-shadow">{i + 1}. {name}</span>
-                <span className="block text-white/90 font-bold drop-shadow">{RANGE[i]}</span>
+                <span className="block text-white/90 font-bold drop-shadow">{maxForLevel(i + 1, p.settings.cap)} gacha{EXTRA[i]}</span>
               </span>
               <Stars n={stars[i]} size="text-2xl sm:text-3xl" />
             </a>

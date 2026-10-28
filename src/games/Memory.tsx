@@ -15,14 +15,14 @@ export default function Memory({ api }: { api: GameApi }) {
     const used = new Set<number>()
     const list: CardT[] = []
     for (let i = 0, guard = 0; list.length < pairs * 2 && guard < 500; guard++) {
-      const e = genEquation(api.level, { cap: api.cap })
+      const e = genEquation(api.level, { ops: api.ops, cap: api.cap })
       if (used.has(e.result)) continue
       used.add(e.result)
       list.push({ id: i * 2, pair: i, text: `${e.a} ${e.op === '+' ? '+' : '−'} ${e.b}`, kind: 'eq' }, { id: i * 2 + 1, pair: i, text: String(e.result), kind: 'ans' })
       i++
     }
     return shuffle(list)
-  }, [api.level, api.cap])
+  }, [api.level, api.cap, api.ops])
   const [open, setOpen] = useState<number[]>([])
   const [matched, setMatched] = useState<number[]>([])
   const misses = useRef(0)

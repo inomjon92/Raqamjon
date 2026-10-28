@@ -6,6 +6,8 @@ export interface GameApi {
   level: number
   /** Ota-ona sozlamasi: sonlar chegarasi (10 yoki 20). */
   cap: number
+  /** Ota-ona tanlagan amallar (+, − yoki ikkalasi). */
+  ops: ('+' | '-')[]
   /** Bola ko'p xato qilgan misollar. */
   weak: string[]
   /** Ketma-ket xatolardan keyin rasmli yordam ko'rsatish. */

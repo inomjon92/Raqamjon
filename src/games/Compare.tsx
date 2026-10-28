@@ -12,10 +12,10 @@ type Side = { value: number; label: string }
 const SIGNS = ['>', '=', '<'] as const
 const signOf = (l: number, r: number) => (l > r ? 0 : l === r ? 1 : 2)
 
-function side(level: number, cap: number, kind: 'num' | 'expr'): Side {
+function side(level: number, cap: number, kind: 'num' | 'expr', ops?: ('+' | '-')[]): Side {
   if (kind === 'num') { const v = rnd(0, maxForLevel(Math.max(2, level), cap)); return { value: v, label: String(v) } }
   for (;;) {
-    const e = genEquation(Math.min(level, 5), { cap })
+    const e = genEquation(Math.min(level, 5), { cap, ops })
     if (isValidForLevel(mk(e.a, e.op, e.b), level, cap)) return { value: e.result, label: `${e.a} ${e.op === '+' ? '+' : '−'} ${e.b}` }
   }
 }
@@ -40,11 +40,11 @@ function Pair({ api }: { api: GameApi }) {
   const { l, r, pictures, emoji } = useMemo(() => {
     const lvl = api.level
     let l: Side, r: Side
-    if (lvl <= 2) { l = side(2, 10, 'num'); r = Math.random() < 0.2 ? { ...l } : side(2, 10, 'num') }
-    else if (lvl === 3) { l = side(lvl, api.cap, 'num'); r = side(lvl, api.cap, 'expr'); if (Math.random() < 0.5) [l, r] = [r, l] }
-    else { l = side(lvl, api.cap, 'expr'); r = side(lvl, api.cap, 'expr') }
+    if (lvl <= 2) { l = side(2, Math.min(api.cap, 10), 'num'); r = Math.random() < 0.2 ? { ...l } : side(2, Math.min(api.cap, 10), 'num') }
+    else if (lvl === 3) { l = side(lvl, api.cap, 'num'); r = side(lvl, api.cap, 'expr', api.ops); if (Math.random() < 0.5) [l, r] = [r, l] }
+    else { l = side(lvl, api.cap, 'expr', api.ops); r = side(lvl, api.cap, 'expr', api.ops) }
     return { l, r, pictures: lvl === 1, emoji: randomEmoji(CUTE) }
-  }, [api.level, api.cap])
+  }, [api.level, api.cap, api.ops])
   const correct = signOf(l.value, r.value)
   const a = useAnswer(api, correct, `${l.label}?${r.label}`.replace(/ /g, ''))
   const [picked, setPicked] = useState<number | null>(null)

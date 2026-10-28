@@ -11,7 +11,7 @@ const SEG = ['bg-mint', 'bg-sky2', 'bg-sun', 'bg-coral', 'bg-grape']
 
 /** 4-o'yin: qurtcha — har to'g'ri javobda tanasi o'sadi. */
 export default function Caterpillar({ api }: { api: GameApi }) {
-  const eq = useMemo(() => genEquation(api.level, { cap: api.cap, weak: api.weak }), [api.level, api.cap, api.weak])
+  const eq = useMemo(() => genEquation(api.level, { ops: api.ops, cap: api.cap, weak: api.weak }), [api.level, api.cap, api.ops, api.weak])
   const a = useAnswer(api, eq.result, eqKey(eq))
   useEffect(() => { sayEquation(eq.a, eq.op, eq.b) }, [eq])
   const grown = api.index + (a.state === 'ok' ? 1 : 0)
@@ -31,7 +31,7 @@ export default function Caterpillar({ api }: { api: GameApi }) {
         <div className="-ml-4 h-24 sm:h-28 px-6 rounded-full bg-sun-light border-4 border-sun grid place-items-center text-4xl sm:text-5xl font-extrabold text-grape-dark whitespace-nowrap">
           {eq.a} {eq.op === '+' ? '+' : '−'} {eq.b} =
         </div>
-        <div className={`-ml-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 grid place-items-center text-5xl font-extrabold ${boxColor(a.state)}`}>
+        <div className={`-ml-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 grid place-items-center ${eq.result >= 100 || a.value.length > 2 ? 'text-4xl' : 'text-5xl'} font-extrabold ${boxColor(a.state)}`}>
           {a.state === 'ok' || a.state === 'reveal' ? eq.result : a.value}
         </div>
       </div>

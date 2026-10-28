@@ -4,14 +4,15 @@ import { NumberPad } from '../components/NumberPad'
 import { Speaker } from '../components/ui'
 import { rnd, pick } from '../lib/random'
 import { boxColor } from './kit'
+import { maxForLevel } from '../lib/levels'
 import { useCells } from './kit'
 import type { GameApi } from './types'
 
 // Pozitsiyalar: 0,1,2 — pastki qator; 3,4 — o'rta; 5 — tepa
 function makePuzzle(level: number, cap: number) {
-  const maxTop = Math.min(cap, level <= 2 ? 10 : level === 3 ? 15 : 20)
+  const maxTop = cap > 20 ? maxForLevel(level, cap) : Math.min(cap, level <= 2 ? 10 : level === 3 ? 15 : 20)
   for (;;) {
-    const hi = level <= 2 ? 3 : level === 3 ? 4 : 6
+    const hi = Math.max(level <= 2 ? 3 : level === 3 ? 4 : 6, Math.floor(maxTop / 4))
     const b = [rnd(1, hi), rnd(1, hi), rnd(1, hi)]
     const v = [b[0], b[1], b[2], b[0] + b[1], b[1] + b[2], b[0] + 2 * b[1] + b[2]]
     if (v[5] > maxTop) continue

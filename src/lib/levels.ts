@@ -6,9 +6,21 @@ export interface Equation { a: number; op: Op; b: number; result: number }
 export const LEVEL_NAMES = ['Urug‘', 'Nihol', 'Gul', 'Daraxt', 'Bog‘'] as const
 export const LEVEL_ICONS = ['🌰', '🌱', '🌷', '🌳', '🏡'] as const
 
-/** Daraja bo'yicha sonlar chegarasi. */
+/**
+ * Daraja bo'yicha sonlar chegarasi. 20 gacha — klassik jadval;
+ * katta chegarada (30, 50, 100) yuqori darajalar chegaraga qarab o'sadi.
+ */
 export function maxForLevel(level: number, cap = 20): number {
-  return Math.min(cap, [5, 10, 10, 20, 20][level - 1] ?? 20)
+  const l = Math.max(1, Math.min(5, level))
+  if (cap <= 20) return Math.min(cap, [5, 10, 10, 20, 20][l - 1])
+  return [10, 20, Math.max(20, Math.round(cap * 0.6)), Math.max(20, Math.round(cap * 0.8)), cap][l - 1]
+}
+
+/** Ota-ona tanlagan amallar; 1-darajada ikkalasi tanlangan bo'lsa faqat qo'shish. */
+export function opsFor(setting: 'both' | '+' | '-', level: number): Op[] {
+  if (setting === '+') return ['+']
+  if (setting === '-') return ['-']
+  return level === 1 ? ['+'] : ['+', '-']
 }
 
 export const eqKey = (e: Pick<Equation, 'a' | 'op' | 'b'>) => `${e.a}${e.op}${e.b}`
@@ -21,7 +33,6 @@ function crossesTen(e: Equation) {
 export function isValidForLevel(e: Equation, level: number, cap = 20): boolean {
   const max = maxForLevel(level, cap)
   if (e.result < 0 || e.result > max || e.a > max || e.b > max) return false
-  if (level === 1 && e.op !== '+') return false
   if (level === 4 && crossesTen(e)) return false
   return true
 }
@@ -46,7 +57,7 @@ export function genEquation(level: number, opts: { ops?: Op[]; cap?: number; wea
     const op = pick(ops)
     let e: Equation
     if (op === '+') {
-      const r = rnd(level === 1 ? 2 : 2, max)
+      const r = rnd(2, max)
       const a = rnd(1, r - 1)
       e = mk(a, '+', r - a)
     } else {

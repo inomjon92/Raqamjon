@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { genEquation, eqKey, isValidForLevel, mk } from '../lib/levels'
+import { genEquation, eqKey, isValidForLevel, mk, maxForLevel } from '../lib/levels'
 import { say, sayEquation } from '../audio/voice'
 import { sfx } from '../audio/sfx'
 import { NumberPad } from '../components/NumberPad'
@@ -14,16 +14,16 @@ const COLORS = ['#7c5cff', '#38bdf8', '#22c55e', '#ffb020', '#ff8a4c', '#f472b6'
 /** 7-o'yin: sehrli g'ildirak — markazdagi amalni tushgan songa qo'llash. */
 export default function Wheel({ api }: { api: GameApi }) {
   const { eq, nums, target } = useMemo(() => {
-    const eq = genEquation(api.level, { cap: api.cap, weak: api.weak })
+    const eq = genEquation(api.level, { ops: api.ops, cap: api.cap, weak: api.weak })
     const others = new Set<number>()
     for (let i = 0; i < 300 && others.size < 7; i++) {
-      const n = rnd(0, 20)
+      const n = rnd(0, maxForLevel(api.level, api.cap))
       if (n !== eq.a && isValidForLevel(mk(n, eq.op, eq.b), api.level, api.cap)) others.add(n)
     }
     while (others.size < 7) others.add(eq.a + others.size + 1)
     const nums = shuffle([eq.a, ...others])
     return { eq, nums, target: nums.indexOf(eq.a) }
-  }, [api.level, api.cap, api.weak])
+  }, [api.level, api.cap, api.ops, api.weak])
   const [rot, setRot] = useState(0)
   const [spun, setSpun] = useState(false)
   const a = useAnswer(api, eq.result, eqKey(eq))

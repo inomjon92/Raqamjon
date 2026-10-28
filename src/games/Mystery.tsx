@@ -11,10 +11,10 @@ import type { GameApi } from './types'
 /** 5-o'yin: sirli katak — tenglamadagi yetishmayotgan son. */
 export default function Mystery({ api }: { api: GameApi }) {
   const { eq, hole } = useMemo(() => {
-    const eq = genEquation(Math.max(2, api.level), { cap: api.cap, weak: api.weak, maxResult: api.level <= 3 ? 10 : 20 })
+    const eq = genEquation(Math.max(2, api.level), { ops: api.ops, cap: api.cap, weak: api.weak })
     const hole = pick(api.level <= 2 ? (['b', 'r'] as const) : (['a', 'b', 'r'] as const))
     return { eq, hole }
-  }, [api.level, api.cap, api.weak])
+  }, [api.level, api.cap, api.ops, api.weak])
   const correct = hole === 'a' ? eq.a : hole === 'b' ? eq.b : eq.result
   const a = useAnswer(api, correct, eqKey(eq))
   const speak = () => say(['ins_mystery'])
@@ -28,7 +28,7 @@ export default function Mystery({ api }: { api: GameApi }) {
         {slot('a', eq.a)} <Op>{eq.op === '+' ? '+' : '−'}</Op> {slot('b', eq.b)} <Op>=</Op> {slot('r', eq.result)}
         <Speaker onClick={speak} />
       </Prompt>
-      {api.help && (
+      {api.help && eq.a <= 20 && eq.b <= 20 && (
         <div className="text-3xl tracking-wider bg-white/70 rounded-2xl px-4 py-2">
           {'🔵'.repeat(eq.a)}{eq.op === '+' ? ' + ' + '🟢'.repeat(eq.b) : ''}
         </div>

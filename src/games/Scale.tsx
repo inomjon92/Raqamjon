@@ -9,11 +9,11 @@ import type { GameApi } from './types'
 /** 11-o'yin: tarozi — o'ng pallaga to'g'ri toshni qo'yib, tenglashtirish. */
 export default function Scale({ api }: { api: GameApi }) {
   const { eq, right, correct, opts } = useMemo(() => {
-    const eq = genEquation(api.level, { cap: api.cap, weak: api.weak })
+    const eq = genEquation(api.level, { ops: api.ops, cap: api.cap, weak: api.weak })
     const right = api.level >= 4 && eq.result > 2 ? rnd(1, eq.result - 1) : 0
     const correct = eq.result - right
     return { eq, right, correct, opts: shuffle([correct, ...distractors(correct, api.level >= 3 ? 3 : 2, api.cap)]) }
-  }, [api.level, api.cap, api.weak])
+  }, [api.level, api.cap, api.ops, api.weak])
   const [chosen, setChosen] = useState<number | null>(null)
   const a = useAnswer(api, correct, eqKey(eq))
   useEffect(() => { say(['ins_scale']) }, [])

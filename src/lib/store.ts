@@ -1,8 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export const CAPS = [10, 20, 30, 50, 100] as const
+export type Cap = (typeof CAPS)[number]
+export type OpsSetting = 'both' | '+' | '-'
+
 export interface Settings {
-  cap: 10 | 20
+  cap: Cap
+  ops: OpsSetting
   voice: boolean
   volume: number
   sfx: boolean
@@ -37,7 +42,7 @@ export interface Profile {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  cap: 20, voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
+  cap: 20, ops: 'both', voice: true, volume: 1, sfx: true, dailyLimitMin: 20, reduceMotion: false, flashSpeedMs: 1500, flashCount: 3,
 }
 
 export const AVATARS = ['🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐨', '🐵', '🦄', '🐧', '🐶', '🐱']

@@ -7,7 +7,7 @@ import { numberWord } from '../numbers'
 
 describe('genEquation', () => {
   for (const level of [1, 2, 3, 4, 5]) {
-    for (const cap of [10, 20]) {
+    for (const cap of [10, 20, 30, 50, 100]) {
       it(`level ${level}, cap ${cap}: 10 000 misol to'g'ri`, () => {
         for (let i = 0; i < 10000; i++) {
           const e = genEquation(level, { cap })
@@ -20,6 +20,16 @@ describe('genEquation', () => {
       })
     }
   }
+  it('faqat tanlangan amallar', () => {
+    for (const ops of [['+'], ['-']] as ('+' | '-')[][]) for (const level of [1, 2, 3, 4, 5]) for (let i = 0; i < 2000; i++) {
+      expect(genEquation(level, { cap: 100, ops }).op).toBe(ops[0])
+    }
+  })
+  it('katta chegarada 5-daraja chegaragacha yetadi', () => {
+    let max = 0
+    for (let i = 0; i < 5000; i++) max = Math.max(max, genEquation(5, { cap: 100 }).result)
+    expect(max).toBeGreaterThan(80)
+  })
   it('distractors noyob va manfiy emas', () => {
     for (let c = 0; c <= 20; c++) {
       const d = distractors(c, 3)
@@ -63,9 +73,10 @@ describe('soroban', () => {
 
 describe('poyezd', () => {
   it('qiymatlar chegaradan chiqmaydi', () => {
-    for (const lvl of [1, 2, 3, 4, 5]) for (let i = 0; i < 2000; i++) {
-      const c = trainChain(lvl, 20)
-      for (const v of c.values) { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThanOrEqual(20) }
+    for (const cap of [10, 20, 50, 100]) for (const ops of [['+'], ['-'], ['+', '-']] as ('+' | '-')[][]) for (const lvl of [1, 2, 3, 4, 5]) for (let i = 0; i < 500; i++) {
+      const c = trainChain(lvl, cap, ops)
+      for (const v of c.values) { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThanOrEqual(cap) }
+      if (ops.length === 1) [c.start, ...c.values].reduce((a, b) => { expect(Math.sign(b - a)).toBe(ops[0] === '+' ? 1 : -1); return b })
     }
   })
 })

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { GAMES } from '../games'
-import { AVATARS, today, useProfile, useStore, type Settings } from '../lib/store'
+import { AVATARS, CAPS, today, useProfile, useStore, type Settings } from '../lib/store'
 import { Btn, Card, TopBar } from '../components/ui'
 import { ParentGate } from '../components/ParentGate'
 import { go } from '../lib/router'
@@ -106,8 +106,12 @@ function SettingsTab() {
   const row = 'flex items-center justify-between gap-3 py-3 border-b last:border-0'
   return (
     <Card>
-      <div className={row}><span className="font-bold">Sonlar chegarasi</span>
-        <div className="flex gap-2">{([10, 20] as const).map((c) => <Btn key={c} size="sm" color={s.cap === c ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => set('cap', c)}>{c} gacha</Btn>)}</div>
+      <div className={`${row} flex-col !items-start`}><span className="font-bold">Sonlar chegarasi</span>
+        <div className="flex flex-wrap gap-2">{CAPS.map((c) => <Btn key={c} size="sm" color={s.cap === c ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => set('cap', c)}>{c} gacha</Btn>)}</div>
+        <span className="text-sm text-gray-500">1–2-darajalar har doim 10 gacha, 5-daraja — tanlangan chegaragacha. Rasmli o‘yinlarda sonlar 20 dan oshmaydi.</span>
+      </div>
+      <div className={`${row} flex-col !items-start`}><span className="font-bold">Amallar</span>
+        <div className="flex flex-wrap gap-2">{([['both', '➕➖ Qo‘shish va ayirish'], ['+', '➕ Faqat qo‘shish'], ['-', '➖ Faqat ayirish']] as const).map(([o, l]) => <Btn key={o} size="sm" color={s.ops === o ? 'bg-grape text-white' : 'bg-gray-100'} onClick={() => set('ops', o)}>{l}</Btn>)}</div>
       </div>
       <div className={row}><span className="font-bold">Ovozli ko‘rsatmalar</span><Toggle on={s.voice} set={(v) => set('voice', v)} /></div>
       <div className={row}><span className="font-bold">Ovoz balandligi</span><input type="range" min={0} max={1} step={0.1} value={s.volume} onChange={(e) => set('volume', +e.target.value)} /></div>

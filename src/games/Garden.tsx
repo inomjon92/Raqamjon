@@ -10,7 +10,7 @@ const HOSTS = ['🦋', '🐞', '🐝', '🐌', '🌻', '🐛', '🐸', '🐦', '
 
 /** 9-o'yin: operatsiyalar bog'i — 3 ta javobdan to'g'risini tanlash. */
 export default function Garden({ api }: { api: GameApi }) {
-  const eq = useMemo(() => genEquation(api.level, { cap: api.cap, weak: api.weak }), [api.level, api.cap, api.weak])
+  const eq = useMemo(() => genEquation(api.level, { ops: api.ops, cap: api.cap, weak: api.weak }), [api.level, api.cap, api.ops, api.weak])
   const opts = useMemo(() => shuffle([eq.result, ...distractors(eq.result, 2, api.cap)]), [eq, api.cap])
   const host = useMemo(() => pick(HOSTS), [])
   const a = useAnswer(api, eq.result, eqKey(eq))

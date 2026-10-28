@@ -11,7 +11,7 @@ const COLORS = ['#ff6b8b', '#38bdf8', '#ffb020', '#22c55e', '#a78bfa']
 
 /** 10-o'yin: to'g'ri javobli pufakni yorish. Pufak qochib ketsa, qaytadan uchadi. */
 export default function Balloons({ api }: { api: GameApi }) {
-  const eq = useMemo(() => genEquation(api.level, { cap: api.cap, weak: api.weak }), [api.level, api.cap, api.weak])
+  const eq = useMemo(() => genEquation(api.level, { ops: api.ops, cap: api.cap, weak: api.weak }), [api.level, api.cap, api.ops, api.weak])
   const opts = useMemo(() => shuffle([eq.result, ...distractors(eq.result, 3, api.cap)]), [eq, api.cap])
   const [popped, setPopped] = useState<number[]>([])
   const a = useAnswer(api, eq.result, eqKey(eq))

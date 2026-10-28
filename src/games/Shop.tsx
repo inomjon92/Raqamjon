@@ -15,11 +15,11 @@ export default function Shop({ api }: { api: GameApi }) {
     const max = maxForLevel(api.level, api.cap)
     const count = api.level === 1 ? 1 : 2
     for (;;) {
-      const prices = Array.from({ length: count }, () => rnd(1, api.level <= 2 ? 5 : 9))
+      const prices = Array.from({ length: count }, () => rnd(1, api.level <= 2 ? 5 : Math.max(9, Math.floor(max / 2))))
       const total = prices.reduce((a, b) => a + b, 0)
       if (total > max) continue
       const g = [...GOODS].sort(() => Math.random() - 0.5)
-      const coins = api.level <= 2 ? [1] : api.level === 3 ? [1, 2, 5] : [1, 2, 5, 10]
+      const coins = api.level <= 2 ? [1] : api.level === 3 ? [1, 2, 5] : [1, 2, 5, 10, 20, 50].filter((c) => c === 1 || c <= max / 2)
       return { items: prices.map((p, i) => ({ emoji: g[i], price: p })), total, coins }
     }
   }, [api.level, api.cap])
@@ -53,7 +53,7 @@ export default function Shop({ api }: { api: GameApi }) {
         ))}
       </div>
       {api.level <= 2 && <div className="text-2xl font-bold text-grape-dark">To‘landi: {paid}</div>}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {coins.map((c) => (
           <button key={c} disabled={a.locked} onClick={() => { sfx.coin(); setTray([...tray, c]) }}
             className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-sun text-white text-3xl font-black shadow-pop border-4 border-yellow-600 active:translate-y-1 active:shadow-none">

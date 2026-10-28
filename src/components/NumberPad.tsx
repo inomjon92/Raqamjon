@@ -10,7 +10,7 @@ interface Props {
 }
 
 /** Bolalar uchun katta raqam paneli. Kompyuterda klaviatura ham ishlaydi. */
-export function NumberPad({ value, onChange, onSubmit, maxLen = 2, disabled }: Props) {
+export function NumberPad({ value, onChange, onSubmit, maxLen = 3, disabled }: Props) {
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
       if (disabled) return
