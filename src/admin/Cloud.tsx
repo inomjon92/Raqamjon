@@ -14,8 +14,17 @@ const ago = (iso: string) => {
 }
 
 /** Onlayn admin panel: istalgan qurilmadan oila kodi va parol bilan kiriladi. */
-export default function Cloud() {
-  const [auth, setAuth] = useState<{ code: string; token: string } | null>(() => { try { return JSON.parse(sessionStorage.getItem(KEY) ?? 'null') } catch { return null } })
+export default function Cloud({ token }: { token?: string }) {
+  const [auth, setAuth] = useState<{ code: string; token: string } | null>(() => {
+    // Ilovadagi "Onlayn panelni ochish" tugmasi tokenli havola bilan ochadi — parolsiz kirish.
+    if (token && /^[0-9a-f]{48}$/.test(token)) {
+      const a = { code: '', token }
+      try { sessionStorage.setItem(KEY, JSON.stringify(a)) } catch { /* yo'q */ }
+      history.replaceState(null, '', '#/cloud')
+      return a
+    }
+    try { return JSON.parse(sessionStorage.getItem(KEY) ?? 'null') } catch { return null }
+  })
   const [owner, setOwner] = useState<string | null>(null)
   const login = (a: { code: string; token: string }) => { setAuth(a); try { sessionStorage.setItem(KEY, JSON.stringify(a)) } catch { /* yo'q */ } }
   const logout = () => { setAuth(null); setOwner(null); try { sessionStorage.removeItem(KEY) } catch { /* yo'q */ } }

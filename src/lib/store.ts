@@ -34,7 +34,7 @@ export interface AdminConfig {
   updatedAt: number
   appliedGifts: string[]
 }
-export interface CloudLink { code: string; token: string; lastSync: number }
+export interface CloudLink { code: string; token: string; pass?: string; lastSync: number }
 
 export const DEFAULT_ADMIN: AdminConfig = {
   pinHash: null, hidden: [], words: [], problems: [], updatedAt: 0, appliedGifts: [],

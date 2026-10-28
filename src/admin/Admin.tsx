@@ -199,6 +199,13 @@ function LocalContent({ section }: { section: 'games' | 'questions' | 'rewards' 
   )
 }
 
+/** Eslab qolish oson parol: 3 harf + 4 raqam (o'xshash belgilarsiz). */
+function makePassword() {
+  const L = 'abdefghkmnprstuvxyz'
+  const r = (n: number) => Math.floor(Math.random() * n)
+  return Array.from({ length: 3 }, () => L[r(L.length)]).join('') + String(1000 + r(9000))
+}
+
 function CloudTab() {
   const cloud = useStore((s) => s.cloud)
   const setCloud = useStore((s) => s.setCloud)
@@ -209,41 +216,49 @@ function CloudTab() {
   const run = async (fn: () => Promise<void>) => { setBusy(true); setMsg(''); try { await fn() } catch (e) { setMsg((e as Error).message) } finally { setBusy(false) } }
   useEffect(() => { if (cloud) void run(async () => { await syncNow() }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const field = 'rounded-xl border-2 px-3 py-2 font-bold w-full'
+  const panelUrl = cloud ? `${location.origin}/#/cloud/${cloud.token}` : ''
 
   if (cloud) return (
-    <Card className="grid gap-3">
-      <div className="text-center">
-        <div className="text-sm font-bold text-gray-500">Oila kodi</div>
-        <div className="text-4xl font-black tracking-widest text-grape-dark select-all">{cloud.code}</div>
-        <div className="text-sm text-gray-500 mt-1">Oxirgi sinxronlash: {cloud.lastSync ? new Date(cloud.lastSync).toLocaleString() : '—'}</div>
+    <Card className="grid gap-4">
+      <div className="text-center text-mint font-extrabold text-xl">✅ Onlayn panel yoqilgan</div>
+      <Btn size="lg" color="bg-grape text-white" onClick={() => window.open(panelUrl, '_blank')}>🌐 Onlayn panelni ochish</Btn>
+      <div className="bg-gray-50 rounded-2xl p-3 text-center">
+        <div className="text-sm font-bold text-gray-500">Kompyuterdan kirish uchun: raqamjon.vercel.app/#/cloud</div>
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 mt-1">
+          <span>Kod: <b className="text-2xl tracking-widest text-grape-dark select-all">{cloud.code}</b></span>
+          {cloud.pass && <span>Parol: <b className="text-2xl tracking-widest text-grape-dark select-all">{cloud.pass}</b></span>}
+        </div>
       </div>
-      <p className="text-gray-600">Onlayn panel: <a className="text-grape font-bold underline break-all" href={`${location.origin}/#/cloud`} target="_blank" rel="noreferrer">{location.host}/#/cloud</a> — istalgan telefon yoki kompyuterdan oila kodi va parol bilan kiring. Boshqa qurilmani ham shu kod bilan ulasangiz, barcha bolalar bitta panelda ko‘rinadi.</p>
-      <Btn color="bg-grape text-white" disabled={busy} onClick={() => run(async () => { await syncNow(); setMsg('Sinxronlandi ✓') })}>🔄 Hozir sinxronlash</Btn>
-      <Btn color="bg-gray-100" onClick={() => { if (confirm('Bu qurilma onlayn paneldan uziladi. Davom etasizmi?')) setCloud(null) }}>Uzish</Btn>
+      <div className="flex flex-wrap gap-2 justify-center">
+        <Btn size="sm" color="bg-white text-grape-dark" onClick={() => { void navigator.clipboard?.writeText(`Raqamjon onlayn panel: ${location.origin}/#/cloud\nKod: ${cloud.code}${cloud.pass ? `\nParol: ${cloud.pass}` : ''}`); setMsg('Nusxalandi ✓') }}>📋 Kod va parolni nusxalash</Btn>
+        <Btn size="sm" color="bg-white text-grape-dark" disabled={busy} onClick={() => run(async () => { await syncNow(); setMsg('Sinxronlandi ✓') })}>🔄 Sinxronlash</Btn>
+        <Btn size="sm" color="bg-gray-100" onClick={() => { if (confirm('Bu qurilma onlayn paneldan uziladi. Davom etasizmi?')) setCloud(null) }}>Uzish</Btn>
+      </div>
+      <p className="text-xs text-gray-500 text-center">Natijalar avtomatik yuboriladi. Ikkinchi telefonni ulash uchun u yerda “Boshqa qurilma hisobiga ulash”ni tanlab, shu kod va parolni kiriting.</p>
       {msg && <p className="font-bold text-center">{msg}</p>}
     </Card>
   )
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Card className="grid gap-3 content-start">
-        <h3 className="font-extrabold text-lg">Yangi oila hisobi</h3>
-        <p className="text-sm text-gray-500">Natijalar internet orqali onlayn panelga yuboriladi. Bolaning ismi, avatari va natijalari saqlanadi — boshqa shaxsiy ma‘lumot yo‘q.</p>
-        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Parol (kamida 6 belgi)" className={field} />
-        <Btn color="bg-mint text-white" disabled={busy || pass.length < 6} onClick={() => run(async () => {
-          const r = await rpc<{ code: string; token: string }>('family_create', { p_password: pass })
-          setCloud({ ...r, lastSync: 0 }); await syncNow()
-        })}>☁️ Hisob yaratish</Btn>
-      </Card>
-      <Card className="grid gap-3 content-start">
-        <h3 className="font-extrabold text-lg">Mavjud hisobga ulash</h3>
-        <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="RJ-XXXXXX" className={field} />
-        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Parol" className={field} />
-        <Btn color="bg-grape text-white" disabled={busy || !code || !pass} onClick={() => run(async () => {
-          const r = await rpc<{ code: string; token: string }>('family_login', { p_code: code, p_password: pass })
-          setCloud({ ...r, lastSync: 0 }); await syncNow()
-        })}>🔗 Ulash</Btn>
-      </Card>
-      {msg && <p className="font-bold text-coral sm:col-span-2 text-center">{msg}</p>}
-    </div>
+    <Card className="grid gap-4 text-center">
+      <div className="text-6xl">☁️</div>
+      <p className="font-bold text-gray-600">Bitta tugma — va bolalar natijalarini istalgan telefon yoki kompyuterdan ko‘rasiz.</p>
+      <Btn size="lg" color="bg-mint text-white" disabled={busy} onClick={() => run(async () => {
+        const p = makePassword()
+        const r = await rpc<{ code: string; token: string }>('family_create', { p_password: p })
+        setCloud({ ...r, pass: p, lastSync: 0 }); await syncNow()
+      })}>{busy ? 'Yaratilmoqda…' : '☁️ Onlayn panelni yoqish'}</Btn>
+      {msg && <p className="font-bold text-coral">{msg}</p>}
+      <details className="text-left">
+        <summary className="font-bold cursor-pointer text-gray-600">Boshqa qurilma hisobiga ulash (kod va parol bor bo‘lsa)</summary>
+        <div className="grid gap-2 mt-3">
+          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="RJ-XXXXXX" className={field} />
+          <input value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Parol" className={field} />
+          <Btn color="bg-grape text-white" disabled={busy || !code || !pass} onClick={() => run(async () => {
+            const r = await rpc<{ code: string; token: string }>('family_login', { p_code: code, p_password: pass })
+            setCloud({ ...r, pass, lastSync: 0 }); await syncNow()
+          })}>🔗 Ulash</Btn>
+        </div>
+      </details>
+    </Card>
   )
 }

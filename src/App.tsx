@@ -72,7 +72,7 @@ export default function App() {
   }, [linked])
 
   let page
-  if (route.name === 'cloud') page = <Cloud />
+  if (route.name === 'cloud') page = <Cloud token={route.token} />
   else if (route.name === 'admin' && !profile) page = <Admin tab={route.tab} />
   else if (!profile) page = <Profiles first onPicked={markPicked} />
   else if (!picked && profilesCount > 1 && route.name !== 'parent' && route.name !== 'admin') page = <Profiles onPicked={markPicked} />
